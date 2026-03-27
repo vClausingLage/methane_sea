@@ -7,10 +7,12 @@ extends Node2D
 @export var wave_speed := 400.0
 @export var pulse_interval := 2.0
 
-@export var rotation_speed := 60.0
+@export var rotation_speed := 12.0
 @export var rotation_limit := 80.0
 
 @export var sonar_drawer: Node2D
+@export var cone_drawer: Node2D
+@export var cone_visual_distance := 400.0
 
 var timer := 0.0
 
@@ -18,6 +20,7 @@ var timer := 0.0
 func _process(delta):
 
 	handle_rotation(delta)
+	update_cone_visual()
 
 	timer += delta
 	if timer > pulse_interval:
@@ -34,6 +37,11 @@ func handle_rotation(delta):
 		rotation_degrees += rotation_speed * delta
 
 	rotation_degrees = clamp(rotation_degrees, -rotation_limit, rotation_limit)
+
+
+func update_cone_visual():
+	if cone_drawer and cone_drawer.has_method("set_scan_visual"):
+		cone_drawer.call("set_scan_visual", cone_angle, cone_visual_distance)
 
 
 func emit_sonar():

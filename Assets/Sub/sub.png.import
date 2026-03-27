@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c2n554g3vh77n"
-path="res://.godot/imported/surface_sandy.png-63d0057325e6a57eb5b08080d36048be.ctex"
+uid="uid://deww2fdktgx82"
+path="res://.godot/imported/sub.png-adcd448607f34abe317929a539aed355.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Assets/surface_sandy.png"
-dest_files=["res://.godot/imported/surface_sandy.png-63d0057325e6a57eb5b08080d36048be.ctex"]
+source_file="res://Assets/Sub/sub.png"
+dest_files=["res://.godot/imported/sub.png-adcd448607f34abe317929a539aed355.ctex"]
 
 [params]
 

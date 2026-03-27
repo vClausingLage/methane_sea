@@ -1,7 +1,7 @@
 @tool
 extends Node2D
 
-@export var thickness := 600
+@export var thickness := 200
 @export var noise_strength := 40
 @export var noise_frequency := 0.02
 @export var regenerate := false:

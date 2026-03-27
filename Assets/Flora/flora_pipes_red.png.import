@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bifcf2x6uredo"
-path="res://.godot/imported/cone.png-58eb3ea6e71f53c008b5ff9ea1a65270.ctex"
+uid="uid://dmrec6h71h56i"
+path="res://.godot/imported/flora_pipes_red.png-20be1268fe061ddb61ef5856d97feee2.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Assets/cone.png"
-dest_files=["res://.godot/imported/cone.png-58eb3ea6e71f53c008b5ff9ea1a65270.ctex"]
+source_file="res://Assets/Flora/flora_pipes_red.png"
+dest_files=["res://.godot/imported/flora_pipes_red.png-20be1268fe061ddb61ef5856d97feee2.ctex"]
 
 [params]
 

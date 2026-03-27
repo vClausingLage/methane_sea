@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bp7llvo1hygmb"
-path="res://.godot/imported/fishbone.png-912d05b66c3af9a5d76353f357808307.ctex"
+uid="uid://bifcf2x6uredo"
+path="res://.godot/imported/cone.png-4660de623ff36b864c0b6d979119195a.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Assets/fishbone.png"
-dest_files=["res://.godot/imported/fishbone.png-912d05b66c3af9a5d76353f357808307.ctex"]
+source_file="res://Assets/Sub/cone.png"
+dest_files=["res://.godot/imported/cone.png-4660de623ff36b864c0b6d979119195a.ctex"]
 
 [params]
 

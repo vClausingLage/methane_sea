@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c6rbbl2rftsyr"
-path="res://.godot/imported/killer_fish.png-3dfff7f0d93bbf60746e8b95061ccc99.ctex"
+uid="uid://dtx0j38354xjd"
+path="res://.godot/imported/flora_funghi.png-1d4db509f69abc2f66e40d77447947cd.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Assets/killer_fish.png"
-dest_files=["res://.godot/imported/killer_fish.png-3dfff7f0d93bbf60746e8b95061ccc99.ctex"]
+source_file="res://Assets/Flora/flora_funghi.png"
+dest_files=["res://.godot/imported/flora_funghi.png-1d4db509f69abc2f66e40d77447947cd.ctex"]
 
 [params]
 

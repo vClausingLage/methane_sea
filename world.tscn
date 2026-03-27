@@ -1,18 +1,20 @@
 [gd_scene format=3 uid="uid://da1my6s5g62cr"]
 
 [ext_resource type="Script" uid="uid://e0yput2wm383" path="res://Scripts/World/world.gd" id="1_f3sb7"]
-[ext_resource type="Texture2D" uid="uid://deww2fdktgx82" path="res://Assets/sub.png" id="2_aqk2v"]
+[ext_resource type="Texture2D" uid="uid://deww2fdktgx82" path="res://Assets/Sub/sub.png" id="2_aqk2v"]
 [ext_resource type="Script" uid="uid://78ibxss7w83b" path="res://Scripts/player.gd" id="2_ioo17"]
 [ext_resource type="Shader" uid="uid://cevvmccicscky" path="res://Shader/submarine_light.gdshader" id="3_036b0"]
 [ext_resource type="Script" uid="uid://djfxiubx3nog6" path="res://Scripts/Surface/spline_terrain.gd" id="4_aqk2v"]
 [ext_resource type="Texture2D" uid="uid://b5p1obd3om4qe" path="res://Assets/white_square.png" id="4_dwbse"]
-[ext_resource type="Texture2D" uid="uid://c2n554g3vh77n" path="res://Assets/surface_sandy.png" id="5_036b0"]
-[ext_resource type="Texture2D" uid="uid://bifcf2x6uredo" path="res://Assets/cone.png" id="5_pkg7o"]
+[ext_resource type="Texture2D" uid="uid://c2n554g3vh77n" path="res://Assets/Terrrain/surface_sandy.png" id="5_036b0"]
+[ext_resource type="Texture2D" uid="uid://bifcf2x6uredo" path="res://Assets/Sub/cone.png" id="5_pkg7o"]
 [ext_resource type="Shader" uid="uid://c3wxlcfd36hgt" path="res://Shader/fog.gdshader" id="8_gbfbk"]
 [ext_resource type="Script" uid="uid://6g6sb5s6wng8" path="res://Scripts/Sonar/sonar.gd" id="8_ic0uy"]
 [ext_resource type="Shader" uid="uid://bpi7gycpae318" path="res://Shader/sonar_echo.gdshader" id="9_2o6r5"]
 [ext_resource type="Script" uid="uid://c0jotx70wodmg" path="res://Scripts/Sonar/sonar_drawer.gd" id="9_k3n1d"]
-[ext_resource type="Texture2D" uid="uid://bp7llvo1hygmb" path="res://Assets/fishbone.png" id="10_wse8f"]
+[ext_resource type="Texture2D" uid="uid://bp7llvo1hygmb" path="res://Assets/Terrrain/fishbone.png" id="10_wse8f"]
+[ext_resource type="Script" uid="uid://bxhobjr865gyw" path="res://Scripts/Sonar/sonar_cone_drawer.gd" id="11_hiqwa"]
+[ext_resource type="Texture2D" uid="uid://dnnn32nnsiks2" path="res://Assets/Flora/flora_pipes_small.png" id="14_70uel"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_ioo17"]
 shader = ExtResource("8_gbfbk")
@@ -59,6 +61,13 @@ fill_to = Vector2(1, 1)
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_70uel"]
 shader = ExtResource("9_2o6r5")
+shader_parameter/intensity = 2.2
+shader_parameter/alpha_boost = 1.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_hiqwa"]
+shader = ExtResource("9_2o6r5")
+shader_parameter/intensity = 1.6
+shader_parameter/alpha_boost = 1.0
 
 [sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_036b0"]
 
@@ -102,9 +111,10 @@ script = ExtResource("1_f3sb7")
 
 [node name="Player" type="RigidBody2D" parent="." unique_id=1813092607]
 z_index = 1
-position = Vector2(472, 240)
+position = Vector2(543, 181)
 linear_damp = 4.0
 script = ExtResource("2_ioo17")
+max_speed = 50.0
 
 [node name="camera" type="Camera2D" parent="Player" unique_id=271887535]
 z_index = 1
@@ -114,10 +124,10 @@ rotation_smoothing_enabled = true
 [node name="fog" type="ColorRect" parent="Player" unique_id=741272956]
 z_index = 1
 material = SubResource("ShaderMaterial_ioo17")
-offset_left = -608.0
+offset_left = -606.0
 offset_top = -312.0
-offset_right = 328.0
-offset_bottom = 176.0
+offset_right = 610.0
+offset_bottom = 339.0
 color = Color(0, 0, 0, 1)
 
 [node name="collider" type="CollisionShape2D" parent="Player" unique_id=622165343]
@@ -177,15 +187,16 @@ sonar_drawer = NodePath("sonar_drawer")
 [node name="sonar_drawer" type="Node2D" parent="Player/sonar" unique_id=1773698385]
 material = SubResource("ShaderMaterial_70uel")
 script = ExtResource("9_k3n1d")
-grid_size = 10.0
-connection_distance = 70.0
-min_connection_length = 3.0
-max_connection_length = 70.0
+
+[node name="sonar_cone" type="Node2D" parent="Player/sonar" unique_id=582459386]
+material = SubResource("ShaderMaterial_hiqwa")
+script = ExtResource("11_hiqwa")
 
 [node name="Surface" type="Node2D" parent="." unique_id=1582221290]
 material = SubResource("CanvasItemMaterial_036b0")
 position = Vector2(-424, 192)
 script = ExtResource("4_aqk2v")
+thickness = 600
 metadata/_edit_group_ = true
 
 [node name="path" type="Path2D" parent="Surface" unique_id=577561040]
@@ -240,3 +251,9 @@ z_index = -1
 position = Vector2(367.99997, 304)
 rotation = -0.34906584
 texture = ExtResource("10_wse8f")
+
+[node name="FloraPipesSmall" type="Sprite2D" parent="." unique_id=928157122]
+z_index = -1
+position = Vector2(609.00006, 197.99997)
+rotation = -0.20943952
+texture = ExtResource("14_70uel")

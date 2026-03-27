@@ -3,9 +3,11 @@ extends Node2D
 var pulses = []
 var point_map := {}
 var simulation_time := 0.0
+var line_cache := []
+var line_cache_dirty := true
 
 @export var pulse_lifetime := 5.0
-@export var point_size := 1.0
+@export var point_size := 1.5
 
 @export var bright_color := Color(0.2, 1.0, 0.2)
 @export var dark_color := Color(0.0, 0.35, 0.0)
@@ -16,9 +18,8 @@ var simulation_time := 0.0
 @export var active_window := 0.6
 
 # active scan line creation
-@export var connection_distance := 20.0
-@export var min_connection_length := 10.0
-@export var max_connection_length := 20.0
+@export var line_noise := 0.7
+@export var max_line_segment_length := 45.0
 
 
 func start_pulse(echoes):
@@ -62,9 +63,8 @@ func _process(delta):
 
 
 func _draw():
-	var active_points = collect_active_points()
 	draw_points()
-	draw_active_segments(active_points)
+	draw_nearest_neighbor_line()
 
 
 func register_hit(world_point: Vector2):
@@ -75,6 +75,7 @@ func register_hit(world_point: Vector2):
 		entry["point"] = entry["point"].lerp(world_point, 0.45)
 		entry["age"] = 0.0
 		entry["last_seen"] = simulation_time
+		line_cache_dirty = true
 		return
 
 	point_map[cell] = {
@@ -82,6 +83,7 @@ func register_hit(world_point: Vector2):
 		"age": 0.0,
 		"last_seen": simulation_time
 	}
+	line_cache_dirty = true
 
 	trim_point_budget()
 
@@ -102,6 +104,9 @@ func trim_point_budget():
 	var remove_count = point_map.size() - max_points
 	for i in range(remove_count):
 		point_map.erase(indexed_points[i]["cell"])
+
+	if remove_count > 0:
+		line_cache_dirty = true
 
 
 func world_to_cell(p: Vector2) -> Vector2i:
@@ -134,57 +139,110 @@ func draw_points():
 		)
 
 
-func draw_active_segments(active_points: Array):
-	if active_points.is_empty():
+func draw_nearest_neighbor_line():
+	if line_cache_dirty:
+		rebuild_line_cache()
+
+	if line_cache.size() < 2:
 		return
 
-	var active_cell_map := {}
-	for p in active_points:
-		active_cell_map[world_to_cell(p["point"])] = p
+	for i in range(line_cache.size() - 1):
+		var a = line_cache[i]
+		var b = line_cache[i + 1]
 
-	var search_radius = int(ceil(connection_distance / grid_size))
-
-	for p1 in active_points:
-		var origin = p1["point"]
-		var origin_cell = world_to_cell(origin)
-		var nearest = null
-		var nearest_distance = INF
-
-		for x in range(-search_radius, search_radius + 1):
-			for y in range(-search_radius, search_radius + 1):
-				var neighbor_cell = origin_cell + Vector2i(x, y)
-
-				if not active_cell_map.has(neighbor_cell):
-					continue
-
-				var p2 = active_cell_map[neighbor_cell]
-				if p2 == p1:
-					continue
-
-				var d = origin.distance_to(p2["point"])
-				if d <= 0.001 or d > connection_distance or d >= nearest_distance:
-					continue
-
-				nearest = p2
-				nearest_distance = d
-
-		if nearest == null:
+		if a == null or b == null:
 			continue
 
-		var dir = (nearest["point"] - origin).normalized()
-		var segment_length = clamp(nearest_distance, min_connection_length, max_connection_length)
-		var segment_end = origin + dir * segment_length
+		if max_line_segment_length > 0.0 and a["point"].distance_to(b["point"]) > max_line_segment_length:
+			continue
+
+		var color = dark_color
+		if a["age"] <= active_window or b["age"] <= active_window:
+			color = bright_color
+
+		var start = jittered_local(a["point"], float(i) * 31.0)
+		var ending = jittered_local(b["point"], float(i) * 31.0 + 13.0)
 
 		draw_line(
-			to_local(origin),
-			to_local(segment_end),
-			bright_color * 0.5,
-			3.0
+			start,
+			ending,
+			color * 0.45,
+			3
 		)
 
 		draw_line(
-			to_local(origin),
-			to_local(segment_end),
-			bright_color,
-			1.5
+			start,
+			ending,
+			color,
+			1.25
 		)
+
+
+func rebuild_line_cache():
+	line_cache.clear()
+
+	if point_map.size() < 2:
+		line_cache_dirty = false
+		return
+
+	var remaining = []
+	for data in point_map.values():
+		remaining.append(data)
+
+	var start_index = index_of_latest_point(remaining)
+	var current = remaining[start_index]
+	line_cache.append(current)
+	remaining.remove_at(start_index)
+	var max_segment_sq = max_line_segment_length * max_line_segment_length
+
+	while not remaining.is_empty():
+		var nearest_idx = 0
+		var nearest_dist := INF
+
+		for i in range(remaining.size()):
+			var d = current["point"].distance_squared_to(remaining[i]["point"])
+			if d < nearest_dist:
+				nearest_dist = d
+				nearest_idx = i
+
+		if max_line_segment_length > 0.0 and nearest_dist > max_segment_sq:
+			line_cache.append(null)
+			var restart_index = index_of_latest_point(remaining)
+			current = remaining[restart_index]
+			line_cache.append(current)
+			remaining.remove_at(restart_index)
+			continue
+
+		current = remaining[nearest_idx]
+		line_cache.append(current)
+		remaining.remove_at(nearest_idx)
+
+	line_cache_dirty = false
+
+
+func index_of_latest_point(points: Array) -> int:
+	var index = 0
+	var latest = points[0]["last_seen"]
+
+	for i in range(1, points.size()):
+		if points[i]["last_seen"] > latest:
+			latest = points[i]["last_seen"]
+			index = i
+
+	return index
+
+
+func jittered_local(world_point: Vector2, seed_offset: float) -> Vector2:
+	if line_noise <= 0.0:
+		return to_local(world_point)
+
+	var seed_a = world_point + Vector2(seed_offset, seed_offset * 0.37)
+	var seed_b = world_point + Vector2(seed_offset * 0.21, seed_offset)
+	var offset = Vector2(pseudo_noise(seed_a), pseudo_noise(seed_b)) * line_noise
+	return to_local(world_point + offset)
+
+
+func pseudo_noise(v: Vector2) -> float:
+	var raw = sin(v.dot(Vector2(12.9898, 78.233))) * 43758.5453
+	var fract_part = raw - floor(raw)
+	return fract_part * 2.0 - 1.0
