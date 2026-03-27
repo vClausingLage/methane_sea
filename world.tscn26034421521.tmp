@@ -111,7 +111,7 @@ script = ExtResource("1_f3sb7")
 
 [node name="Player" type="RigidBody2D" parent="." unique_id=1813092607]
 z_index = 1
-position = Vector2(384, 240)
+position = Vector2(1184, 240)
 linear_damp = 4.0
 script = ExtResource("2_ioo17")
 max_speed = 50.0
@@ -196,7 +196,7 @@ script = ExtResource("11_hiqwa")
 material = SubResource("CanvasItemMaterial_036b0")
 position = Vector2(-424, 192)
 script = ExtResource("4_aqk2v")
-thickness = 100
+regenerate = true
 
 [node name="path" type="Path2D" parent="Surface" unique_id=577561040]
 position = Vector2(-208, 104)
@@ -221,14 +221,15 @@ color = Color(0, 0, 0, 1)
 color = Color(0.0142752165, 0.014275218, 0.014275218, 1)
 
 [node name="DebugBackground" type="Node2D" parent="." unique_id=1172600398]
+visible = false
 
 [node name="TextureRect" type="TextureRect" parent="DebugBackground" unique_id=2143294198]
-modulate = Color(0.011702106, 0.011702109, 0.011702107, 1)
+modulate = Color(0.22959325, 0.22959325, 0.22959322, 1)
 z_index = -1
 offset_left = -1592.0
-offset_top = -3496.0
-offset_right = 8008.0
-offset_bottom = 2864.0
+offset_top = -1016.0
+offset_right = 2320.0
+offset_bottom = 1216.0
 texture = SubResource("CanvasTexture_gbfbk")
 
 [node name="Particles" type="GPUParticles2D" parent="." unique_id=260648466]

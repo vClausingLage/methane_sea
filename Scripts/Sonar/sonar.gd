@@ -14,6 +14,9 @@ extends Node2D
 @export var cone_drawer: Node2D
 @export var cone_visual_distance := 400.0
 
+@export var noise_echo_probability := 0.12
+@export var noise_echo_range := 500.0
+
 var timer := 0.0
 
 
@@ -71,10 +74,12 @@ func emit_sonar():
 
 		if distance >= max_range:
 			continue
-
+			
 		echoes.append({
 			"point": hit_pos,
-			"delay": distance / wave_speed
+			"delay": distance / wave_speed,
+			"noise": false
 		})
+
 
 	sonar_drawer.start_pulse(echoes)

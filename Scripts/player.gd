@@ -3,8 +3,9 @@ extends RigidBody2D
 @export var thrust := 50.0
 @export var max_speed := 25.0
 @export var water_drag := 0.90
+@export var auto_level_speed := .4
 
-func _physics_process(_delta):
+func _physics_process(delta):
 
 	var direction = Vector2.ZERO
 
@@ -16,6 +17,10 @@ func _physics_process(_delta):
 		direction.x -= 1
 	if Input.is_key_pressed(KEY_D):
 		direction.x += 1
+	if Input.is_key_pressed(KEY_SPACE):
+		rotation = lerp_angle(rotation, 0.0, auto_level_speed * delta)
+		if abs(rotation) < 0.01:
+			rotation = 0.0
 
 	if direction != Vector2.ZERO:
 		direction = direction.normalized()
