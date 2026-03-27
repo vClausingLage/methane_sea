@@ -1,21 +1,22 @@
 extends Node2D
 
-@export var cone_angle: float = 30.0
-@export var rays: int = 40
-@export var max_range: float = 600.0
+@export var cone_angle := 30.0
+@export var rays := 40
+@export var max_range := 600.0
 
-@export var wave_speed: float = 400.0
-@export var pulse_interval: float = 2.0
+@export var wave_speed := 400.0
+@export var pulse_interval := 2.0
 
-@export var rotation_speed: float = 60.0
-@export var rotation_limit: float = 80.0
+@export var rotation_speed := 60.0
+@export var rotation_limit := 80.0
+
+@export var sonar_drawer: Node2D
 
 var timer := 0.0
 
-@onready var sonar_drawer = get_node("sonar_drawer")
 
 func _process(delta):
-	
+
 	handle_rotation(delta)
 
 	timer += delta
@@ -27,10 +28,10 @@ func _process(delta):
 
 func handle_rotation(delta):
 
-	if Input.is_key_pressed(KEY_Q):
+	if Input.is_key_pressed(KEY_UP):
 		rotation_degrees -= rotation_speed * delta
 
-	if Input.is_key_pressed(KEY_E):
+	if Input.is_key_pressed(KEY_DOWN):
 		rotation_degrees += rotation_speed * delta
 
 	rotation_degrees = clamp(rotation_degrees, -rotation_limit, rotation_limit)
@@ -49,28 +50,35 @@ func emit_sonar():
 
 		var angle = deg_to_rad(start_angle + i * step) + global_rotation
 
-		var direction = Vector2.RIGHT.rotated(angle)
+		var dir = Vector2.RIGHT.rotated(angle)
 
-		var target = global_position + direction * max_range
+		var target = global_position + dir * max_range
 
 		var query = PhysicsRayQueryParameters2D.create(
 			global_position,
 			target
 		)
 
-		var result = space.intersect_ray(query)
-
-		var hit_pos = target
-
-		if result:
-			hit_pos = result.position
-
+		var hit_pos = result.position
+		var normal = result.normal
 		var distance = global_position.distance_to(hit_pos)
 
-		echoes.append({
-			"point": hit_pos,
-			"distance": distance,
-			"delay": distance / wave_speed
-		})
+		if distance >= max_range:
+			continue
+
+		# surface tangent
+		var tangent = Vector2(-normal.y, normal.x)
+
+		# create several points along the wall
+		var samples = 4
+		var spacing = 6.0
+
+		for s in range(-samples, samples + 1):
+			var offset = tangent * spacing * s
+
+			echoes.append({
+				"point": hit_pos + offset,
+				"delay": distance / wave_speed
+			})
 
 	sonar_drawer.start_pulse(echoes)

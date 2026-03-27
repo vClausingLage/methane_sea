@@ -10,7 +10,8 @@
 [ext_resource type="Texture2D" uid="uid://bifcf2x6uredo" path="res://Assets/cone.png" id="5_pkg7o"]
 [ext_resource type="Shader" uid="uid://c3wxlcfd36hgt" path="res://Shader/fog.gdshader" id="8_gbfbk"]
 [ext_resource type="Script" uid="uid://6g6sb5s6wng8" path="res://Scripts/Sonar/sonar.gd" id="8_ic0uy"]
-[ext_resource type="Script" uid="uid://dxaj37gs50qky" path="res://Scripts/Sonar/sonar_drawer.gd" id="9_k3n1d"]
+[ext_resource type="Shader" uid="uid://bpi7gycpae318" path="res://Shader/sonar_echo.gdshader" id="9_2o6r5"]
+[ext_resource type="Script" uid="uid://c0jotx70wodmg" path="res://Scripts/Sonar/sonar_drawer.gd" id="9_k3n1d"]
 [ext_resource type="Texture2D" uid="uid://bp7llvo1hygmb" path="res://Assets/fishbone.png" id="10_wse8f"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_ioo17"]
@@ -55,6 +56,9 @@ height = 30
 fill = 1
 fill_from = Vector2(0.5, 0.5)
 fill_to = Vector2(1, 1)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_70uel"]
+shader = ExtResource("9_2o6r5")
 
 [sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_036b0"]
 
@@ -164,11 +168,20 @@ scale = Vector2(4.3333335, 0.31343287)
 energy = 0.7
 texture = ExtResource("5_pkg7o")
 
-[node name="sonar" type="Node2D" parent="Player" unique_id=716117077]
+[node name="sonar" type="Node2D" parent="Player" unique_id=716117077 node_paths=PackedStringArray("sonar_drawer")]
 position = Vector2(-16, -32)
 script = ExtResource("8_ic0uy")
+cone_angle = null
+rays = null
+max_range = null
+wave_speed = null
+pulse_interval = null
+rotation_speed = null
+rotation_limit = null
+sonar_drawer = NodePath("sonar_drawer")
 
 [node name="sonar_drawer" type="Node2D" parent="Player/sonar" unique_id=1773698385]
+material = SubResource("ShaderMaterial_70uel")
 script = ExtResource("9_k3n1d")
 
 [node name="Surface" type="Node2D" parent="." unique_id=1582221290]
