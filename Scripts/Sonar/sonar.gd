@@ -20,7 +20,6 @@ func _process(delta):
 	handle_rotation(delta)
 
 	timer += delta
-
 	if timer > pulse_interval:
 		timer = 0
 		emit_sonar()
@@ -49,36 +48,25 @@ func emit_sonar():
 	for i in range(rays):
 
 		var angle = deg_to_rad(start_angle + i * step) + global_rotation
-
 		var dir = Vector2.RIGHT.rotated(angle)
 
 		var target = global_position + dir * max_range
 
-		var query = PhysicsRayQueryParameters2D.create(
-			global_position,
-			target
-		)
+		var query = PhysicsRayQueryParameters2D.create(global_position, target)
+		var result = space.intersect_ray(query)
+
+		if result.is_empty():
+			continue
 
 		var hit_pos = result.position
-		var normal = result.normal
 		var distance = global_position.distance_to(hit_pos)
 
 		if distance >= max_range:
 			continue
 
-		# surface tangent
-		var tangent = Vector2(-normal.y, normal.x)
-
-		# create several points along the wall
-		var samples = 4
-		var spacing = 6.0
-
-		for s in range(-samples, samples + 1):
-			var offset = tangent * spacing * s
-
-			echoes.append({
-				"point": hit_pos + offset,
-				"delay": distance / wave_speed
-			})
+		echoes.append({
+			"point": hit_pos,
+			"delay": distance / wave_speed
+		})
 
 	sonar_drawer.start_pulse(echoes)

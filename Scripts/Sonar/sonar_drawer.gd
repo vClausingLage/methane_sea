@@ -16,7 +16,6 @@ var map_points = []
 
 
 func start_pulse(echoes):
-
 	pulses.append({
 		"echoes": echoes,
 		"time": 0.0
@@ -24,7 +23,6 @@ func start_pulse(echoes):
 
 
 func _process(delta):
-
 	for pulse in pulses:
 
 		pulse.time += delta
@@ -56,16 +54,14 @@ func _process(delta):
 		m.age += delta
 
 	queue_redraw()
+	print("map points: ", map_points.size())
 
 
 func _draw():
-
 	draw_points()
 	draw_edges()
 
-
 func draw_points():
-
 	for m in map_points:
 
 		var color = bright_color

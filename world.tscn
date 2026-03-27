@@ -171,13 +171,7 @@ texture = ExtResource("5_pkg7o")
 [node name="sonar" type="Node2D" parent="Player" unique_id=716117077 node_paths=PackedStringArray("sonar_drawer")]
 position = Vector2(-16, -32)
 script = ExtResource("8_ic0uy")
-cone_angle = null
-rays = null
-max_range = null
-wave_speed = null
-pulse_interval = null
-rotation_speed = null
-rotation_limit = null
+wave_speed = 200.0
 sonar_drawer = NodePath("sonar_drawer")
 
 [node name="sonar_drawer" type="Node2D" parent="Player/sonar" unique_id=1773698385]
