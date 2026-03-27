@@ -177,6 +177,10 @@ sonar_drawer = NodePath("sonar_drawer")
 [node name="sonar_drawer" type="Node2D" parent="Player/sonar" unique_id=1773698385]
 material = SubResource("ShaderMaterial_70uel")
 script = ExtResource("9_k3n1d")
+grid_size = 10.0
+connection_distance = 70.0
+min_connection_length = 3.0
+max_connection_length = 70.0
 
 [node name="Surface" type="Node2D" parent="." unique_id=1582221290]
 material = SubResource("CanvasItemMaterial_036b0")
