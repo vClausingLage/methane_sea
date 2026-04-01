@@ -4,6 +4,7 @@ extends RigidBody2D
 @export var max_speed := 25.0
 @export var water_drag := 0.90
 @export var auto_level_speed := .4
+@onready var sonar = $sonar
 
 func _physics_process(delta):
 
@@ -17,10 +18,14 @@ func _physics_process(delta):
 		direction.x -= 1
 	if Input.is_key_pressed(KEY_D):
 		direction.x += 1
-	if Input.is_key_pressed(KEY_SPACE):
+	if Input.is_key_pressed(KEY_ENTER):
 		rotation = lerp_angle(rotation, 0.0, auto_level_speed * delta)
 		if abs(rotation) < 0.01:
 			rotation = 0.0
+	if Input.is_key_pressed(KEY_SPACE):
+		# sonar scan
+		sonar.scan()
+		
 
 	if direction != Vector2.ZERO:
 		direction = direction.normalized()

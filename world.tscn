@@ -17,6 +17,8 @@
 [ext_resource type="Texture2D" uid="uid://dmlsdj2hu3fwg" path="res://Assets/Terrrain/rock_edge.png" id="13_udxuc"]
 [ext_resource type="Texture2D" uid="uid://dnnn32nnsiks2" path="res://Assets/Flora/flora_pipes_small.png" id="14_70uel"]
 [ext_resource type="Texture2D" uid="uid://be31ycv66uhqj" path="res://Assets/Terrrain/rock_tile.png" id="15_ikiii"]
+[ext_resource type="Texture2D" uid="uid://c6rbbl2rftsyr" path="res://Assets/Fauna/killer_fish.png" id="16_ikiii"]
+[ext_resource type="Script" uid="uid://tvehll62f5xk" path="res://Scripts/World/killerfish.gd" id="18_cbp6q"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_ioo17"]
 shader = ExtResource("8_gbfbk")
@@ -109,12 +111,22 @@ gravity = Vector3(0, 98, 0)
 turbulence_enabled = true
 turbulence_noise_speed = Vector3(0.7, 0.7, 0)
 
+[sub_resource type="Gradient" id="Gradient_ikiii"]
+colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_cbp6q"]
+gradient = SubResource("Gradient_ikiii")
+width = 30
+height = 30
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+
 [node name="World" type="Node2D" unique_id=1567609957]
 script = ExtResource("1_f3sb7")
 
 [node name="Player" type="RigidBody2D" parent="." unique_id=1813092607]
 z_index = 1
-position = Vector2(384, 240)
+position = Vector2(352, 136)
 linear_damp = 4.0
 script = ExtResource("2_ioo17")
 max_speed = 50.0
@@ -139,7 +151,7 @@ rotation = 1.5707964
 shape = SubResource("CapsuleShape2D_036b0")
 debug_color = Color(0.9987381, 0, 0.14610073, 0.41960785)
 
-[node name="boat" type="Sprite2D" parent="Player" unique_id=1524320928]
+[node name="sprite" type="Sprite2D" parent="Player" unique_id=1524320928]
 z_index = 1
 position = Vector2(-136, -24)
 texture = ExtResource("2_aqk2v")
@@ -181,11 +193,12 @@ scale = Vector2(4.3333335, 0.31343287)
 energy = 0.7
 texture = ExtResource("5_pkg7o")
 
-[node name="sonar" type="Node2D" parent="Player" unique_id=716117077 node_paths=PackedStringArray("sonar_drawer")]
+[node name="sonar" type="Node2D" parent="Player" unique_id=716117077 node_paths=PackedStringArray("sonar_drawer", "cone_drawer")]
 position = Vector2(-16, -32)
 script = ExtResource("8_ic0uy")
 wave_speed = 200.0
 sonar_drawer = NodePath("sonar_drawer")
+cone_drawer = NodePath("sonar_cone")
 
 [node name="sonar_drawer" type="Node2D" parent="Player/sonar" unique_id=1773698385]
 material = SubResource("ShaderMaterial_70uel")
@@ -257,3 +270,19 @@ z_index = -1
 position = Vector2(609.00006, 197.99997)
 rotation = -0.20943952
 texture = ExtResource("14_70uel")
+
+[node name="killerfish" type="RigidBody2D" parent="." unique_id=817576044]
+position = Vector2(528, 128)
+script = ExtResource("18_cbp6q")
+
+[node name="sprite" type="Sprite2D" parent="killerfish" unique_id=393925208]
+scale = Vector2(0.05, 0.05)
+texture = ExtResource("16_ikiii")
+
+[node name="collider" type="CollisionPolygon2D" parent="killerfish" unique_id=1270348739]
+polygon = PackedVector2Array(8, -8, 0, -16, -8, -16, -24, -8, -16, -8, -16, 0, -16, 8, -8, 8, 0, 8, 8, 0, 16, 8, 8, 16, 16, 16, 24, 8, 16, 0)
+
+[node name="light" type="PointLight2D" parent="killerfish" unique_id=1473408417]
+position = Vector2(-19, -9)
+color = Color(0.90480626, 0.88407725, 0.30567408, 1)
+texture = SubResource("GradientTexture2D_cbp6q")

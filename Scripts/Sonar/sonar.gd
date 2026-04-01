@@ -17,8 +17,9 @@ extends Node2D
 @export var noise_echo_probability := 0.12
 @export var noise_echo_range := 500.0
 
-var timer := 0.0
+var mode : String = 'manual'
 
+var timer: float = 0.0
 
 func _process(delta):
 
@@ -27,9 +28,14 @@ func _process(delta):
 
 	timer += delta
 	if timer > pulse_interval:
-		timer = 0
-		emit_sonar()
+		if mode == 'auto':
+			emit_sonar()
+			timer = 0
 
+func scan():
+	if timer > pulse_interval:
+		emit_sonar()
+		timer = 0
 
 func handle_rotation(delta):
 
@@ -48,6 +54,8 @@ func update_cone_visual():
 
 
 func emit_sonar():
+	if cone_drawer and cone_drawer.has_method("trigger_emit_flash"):
+		cone_drawer.call("trigger_emit_flash", max_range, wave_speed)
 
 	var echoes = []
 
