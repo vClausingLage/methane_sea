@@ -6,20 +6,20 @@ var simulation_time := 0.0
 var line_cache := []
 var line_cache_dirty := true
 
-@export var pulse_lifetime := 5.0
-@export var point_size := 1.5
+var pulse_lifetime := 5.0
+var point_size := 1.5
 
-@export var bright_color := Color(0.2, 1.0, 0.2)
-@export var dark_color := Color(0.0, 0.35, 0.0)
+var bright_color := Color(0.2, 1.0, 0.2)
+var dark_color := Color(0.0, 0.35, 0.0)
 
-@export var noise := 2.0
-@export var grid_size := 8.0
-@export var max_points := 1200
-@export var active_window := 0.6
+var noise := 2.0
+var grid_size := 8.0
+var max_points := 1200
+var active_window := 0.6
 
 # active scan line creation
-@export var line_noise := 0.7
-@export var max_line_segment_length := 45.0
+var line_noise := 0.7
+var max_line_segment_length := 45.0
 
 
 func start_pulse(echoes):

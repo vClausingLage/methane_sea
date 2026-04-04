@@ -102,6 +102,7 @@ turbulence_enabled = true
 turbulence_noise_speed = Vector3(0.7, 0.7, 0)
 
 [sub_resource type="Gradient" id="Gradient_ikiii"]
+offsets = PackedFloat32Array(0, 0.72289157)
 colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 1)
 
 [sub_resource type="GradientTexture2D" id="GradientTexture2D_cbp6q"]
@@ -119,20 +120,20 @@ z_index = 1
 position = Vector2(352, 136)
 linear_damp = 4.0
 script = ExtResource("2_ioo17")
-max_speed = 50.0
 
 [node name="camera" type="Camera2D" parent="Player" unique_id=271887535]
 z_index = 1
+offset = Vector2(250, 0)
 position_smoothing_enabled = true
 rotation_smoothing_enabled = true
 
 [node name="fog" type="ColorRect" parent="Player" unique_id=741272956]
-z_index = 1
+z_index = 10
 material = SubResource("ShaderMaterial_ioo17")
-offset_left = -606.0
-offset_top = -312.0
-offset_right = 610.0
-offset_bottom = 339.0
+offset_left = -710.0
+offset_top = -543.0
+offset_right = 1217.0
+offset_bottom = 530.0
 color = Color(0, 0, 0, 1)
 
 [node name="collider" type="CollisionShape2D" parent="Player" unique_id=622165343]
@@ -156,32 +157,30 @@ texture = ExtResource("5_pkg7o")
 
 [node name="light_boat" type="PointLight2D" parent="Player" unique_id=421053750]
 z_index = 1
-position = Vector2(4, -37)
-scale = Vector2(2.5, 0.7)
+position = Vector2(-60.75, -31.499996)
+scale = Vector2(3.7696078, 0.8137254)
 energy = 0.5
 texture = SubResource("GradientTexture2D_wse8f")
 texture_scale = 1.7
 
 [node name="light_turret" type="PointLight2D" parent="Player" unique_id=2021725739]
 z_index = 1
-position = Vector2(-76, -80)
-color = Color(0.23786616, 0.5752095, 0.17164338, 1)
+position = Vector2(-111, -89)
+scale = Vector2(1.2666667, 1.2666667)
+color = Color(0.6627872, 0.9432212, 0.53917646, 1)
 energy = 0.8
 texture = SubResource("GradientTexture2D_ic0uy")
 
 [node name="light_keel" type="PointLight2D" parent="Player" unique_id=1778292083]
 z_index = 1
-position = Vector2(-4, 17)
+position = Vector2(43, 29)
 scale = Vector2(4.3333335, 0.31343287)
 energy = 0.7
 texture = ExtResource("5_pkg7o")
 
-[node name="sonar" type="Node2D" parent="Player" unique_id=716117077 node_paths=PackedStringArray("sonar_drawer", "cone_drawer")]
-position = Vector2(-16, -32)
+[node name="sonar" type="Node2D" parent="Player" unique_id=716117077]
+position = Vector2(151, -50)
 script = ExtResource("8_ic0uy")
-wave_speed = 200.0
-sonar_drawer = NodePath("sonar_drawer")
-cone_drawer = NodePath("sonar_cone")
 
 [node name="sonar_drawer" type="Node2D" parent="Player/sonar" unique_id=1773698385]
 material = SubResource("ShaderMaterial_70uel")
@@ -194,7 +193,6 @@ script = ExtResource("11_hiqwa")
 [node name="Surface" type="Node2D" parent="." unique_id=1582221290]
 position = Vector2(-424, 192)
 script = ExtResource("4_aqk2v")
-thickness = 100
 
 [node name="path" type="Path2D" parent="Surface" unique_id=577561040]
 position = Vector2(-208, 104)
@@ -215,9 +213,6 @@ disabled = true
 material = SubResource("ShaderMaterial_2u3nc")
 texture = ExtResource("15_ikiii")
 
-[node name="CanvasModulate" type="CanvasModulate" parent="." unique_id=1578699134]
-color = Color(0.0142752165, 0.014275218, 0.014275218, 1)
-
 [node name="DebugBackground" type="Node2D" parent="." unique_id=1172600398]
 
 [node name="TextureRect" type="TextureRect" parent="DebugBackground" unique_id=2143294198]
@@ -230,7 +225,7 @@ offset_bottom = 2877.0
 texture = SubResource("CanvasTexture_gbfbk")
 
 [node name="Particles" type="GPUParticles2D" parent="." unique_id=260648466]
-z_index = 10
+z_index = 1
 material = SubResource("CanvasItemMaterial_gbfbk")
 position = Vector2(357, -85)
 amount = 200
@@ -272,5 +267,8 @@ polygon = PackedVector2Array(20.18892, -42.01983, -22.353355, -44.258896, -38.02
 [node name="light" type="PointLight2D" parent="killerfish" unique_id=1473408417]
 position = Vector2(10, -62)
 scale = Vector2(2.3, 2.3)
-color = Color(0.90480626, 0.88407725, 0.30567408, 1)
+color = Color(0.93745655, 0.9209382, 0.45868933, 1)
 texture = SubResource("GradientTexture2D_cbp6q")
+
+[node name="CanvasModulate" type="CanvasModulate" parent="." unique_id=1578699134]
+color = Color(0.0142752165, 0.014275218, 0.014275218, 1)

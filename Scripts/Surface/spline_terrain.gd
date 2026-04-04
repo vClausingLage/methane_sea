@@ -1,11 +1,11 @@
 @tool
 extends Node2D
 
-@export var thickness := 200
-@export var noise_strength := 40
-@export var noise_frequency := 0.02
-@export var allow_segment_collision_fallback := true
-@export var regenerate := false:
+var thickness := 200
+var noise_strength := 40
+var noise_frequency := 0.02
+var allow_segment_collision_fallback := true
+var regenerate := false:
 	set(value):
 		regenerate = false
 		generate()
@@ -19,15 +19,12 @@ extends Node2D
 var noise := FastNoiseLite.new()
 var _fill_parts_root: Node2D = null
 
+
 func _ready():
 	noise.noise_type = FastNoiseLite.TYPE_PERLIN
 	noise.frequency = noise_frequency
 	_ensure_fill_parts_root()
 	generate()
-
-# func _process(_delta):
-# 	if Engine.is_editor_hint():
-# 		generate()
 
 func generate():
 

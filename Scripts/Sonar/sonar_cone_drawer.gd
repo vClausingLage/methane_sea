@@ -1,15 +1,15 @@
 extends Node2D
 
-@export var cone_angle := 30.0
-@export var fade_distance := 400.0
-@export var line_width := 1.1
-@export var fade_steps := 26
-@export var line_color := Color(0.2, 1.0, 0.2, 0.9)
-@export var emit_flash_duration := 0.2
-@export var emit_flash_boost := 1.9
-@export var emit_fill_alpha := 0.24
-@export var emit_flash_distance := 600.0
-@export var emit_wave_speed := 400.0
+var cone_angle := 30.0
+var fade_distance := 400.0
+var line_width := 1.1
+var fade_steps := 26
+var line_color := Color(0.2, 1.0, 0.2, 0.9)
+var emit_flash_duration := 0.2
+var emit_flash_boost := 1.9
+var emit_fill_alpha := 0.24
+var emit_flash_distance := 600.0
+var emit_wave_speed := 400.0
 
 var emit_flash_time := 0.0
 
@@ -48,9 +48,6 @@ func _draw() -> void:
 		flash_t = emit_flash_time / emit_flash_duration
 
 	var flash_strength : float = 1.0 + max(0.0, emit_flash_boost - 1.0) * flash_t
-
-	# if flash_t > 0.0:
-		# draw_emit_fill(flash_t)
 
 	draw_fade_line(-cone_angle * 0.5, flash_strength)
 	draw_fade_line(cone_angle * 0.5, flash_strength)

@@ -1,21 +1,21 @@
 extends Node2D
 
-@export var cone_angle := 30.0
-@export var rays := 40
-@export var max_range := 600.0
+var cone_angle := 30.0
+var rays := 40
+var max_range := 600.0
 
-@export var wave_speed := 400.0
-@export var pulse_interval := 2.0
+var wave_speed := 400.0
+var pulse_interval := 2.0
 
-@export var rotation_speed := 12.0
-@export var rotation_limit := 80.0
+var rotation_speed := 12.0
+var rotation_limit := 80.0
 
-@export var sonar_drawer: Node2D
-@export var cone_drawer: Node2D
-@export var cone_visual_distance := 400.0
+@onready var sonar_drawer: Node2D = $sonar_drawer
+@onready var cone_drawer: Node2D = $sonar_cone
+var cone_visual_distance := 400.0
 
-@export var noise_echo_probability := 0.12
-@export var noise_echo_range := 500.0
+var noise_echo_probability := 0.12
+var noise_echo_range := 500.0
 
 var mode : String = 'manual'
 
