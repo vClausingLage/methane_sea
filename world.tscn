@@ -1,0 +1,291 @@
+[gd_scene format=3 uid="uid://da1my6s5g62cr"]
+
+[ext_resource type="Script" uid="uid://e0yput2wm383" path="res://Scripts/World/world.gd" id="1_f3sb7"]
+[ext_resource type="Script" uid="uid://78ibxss7w83b" path="res://Scripts/player.gd" id="2_ioo17"]
+<<<<<<< HEAD
+[ext_resource type="Texture2D" uid="uid://blp2fn20oib48" path="res://Assets/Sub/sub3.png" id="4_mc2jv"]
+=======
+>>>>>>> 0f85414141d27d0113a225f664bd7de2e8eba49d
+[ext_resource type="Texture2D" uid="uid://bifcf2x6uredo" path="res://Assets/Sub/cone.png" id="5_pkg7o"]
+[ext_resource type="Shader" uid="uid://c3wxlcfd36hgt" path="res://Shader/fog.gdshader" id="8_gbfbk"]
+[ext_resource type="Script" uid="uid://6g6sb5s6wng8" path="res://Scripts/Sonar/sonar.gd" id="8_ic0uy"]
+[ext_resource type="Shader" uid="uid://bpi7gycpae318" path="res://Shader/sonar_echo.gdshader" id="9_2o6r5"]
+[ext_resource type="Script" uid="uid://c0jotx70wodmg" path="res://Scripts/Sonar/sonar_drawer.gd" id="9_k3n1d"]
+[ext_resource type="Script" uid="uid://bruj03e7iwhiu" path="res://Scripts/motor_player.gd" id="10_mc2jv"]
+<<<<<<< HEAD
+[ext_resource type="AudioStream" uid="uid://ilpyhljw4agg" path="res://Assets/Audio/Sub/Ship/motor_1.wav" id="10_wjb0r"]
+[ext_resource type="Texture2D" uid="uid://bp7llvo1hygmb" path="res://Assets/Terrrain/fishbone.png" id="10_wse8f"]
+[ext_resource type="Script" uid="uid://bxpm0gbq2dcpg" path="res://Scripts/command_player.gd" id="10_yw8v8"]
+[ext_resource type="Script" uid="uid://bxhobjr865gyw" path="res://Scripts/Sonar/sonar_cone_drawer.gd" id="11_hiqwa"]
+[ext_resource type="AudioStream" uid="uid://chxpdkhhuw1ne" path="res://Assets/Audio/Sub/Ship/motor_2.wav" id="11_mc2jv"]
+[ext_resource type="AudioStream" uid="uid://b4pysvlcfggco" path="res://Assets/Audio/Sub/Ship/motor_3.wav" id="12_bo7i5"]
+[ext_resource type="AudioStream" uid="uid://ct82hfyrf26ts" path="res://Assets/Audio/Sub/Ship/motor_4.wav" id="13_4h6ng"]
+=======
+[ext_resource type="AudioStream" uid="uid://ilpyhljw4agg" path="res://Assets/Audio/Sub/motor_1.wav" id="10_wjb0r"]
+[ext_resource type="Texture2D" uid="uid://bp7llvo1hygmb" path="res://Assets/Terrrain/fishbone.png" id="10_wse8f"]
+[ext_resource type="Script" uid="uid://bxpm0gbq2dcpg" path="res://Scripts/command_player.gd" id="10_yw8v8"]
+[ext_resource type="Script" uid="uid://bxhobjr865gyw" path="res://Scripts/Sonar/sonar_cone_drawer.gd" id="11_hiqwa"]
+[ext_resource type="AudioStream" uid="uid://chxpdkhhuw1ne" path="res://Assets/Audio/Sub/motor_2.wav" id="11_mc2jv"]
+[ext_resource type="AudioStream" uid="uid://b4pysvlcfggco" path="res://Assets/Audio/Sub/motor_3.wav" id="12_bo7i5"]
+[ext_resource type="AudioStream" uid="uid://ct82hfyrf26ts" path="res://Assets/Audio/Sub/motor_4.wav" id="13_4h6ng"]
+>>>>>>> 0f85414141d27d0113a225f664bd7de2e8eba49d
+[ext_resource type="PackedScene" uid="uid://dbbnl7vhyyt7s" path="res://Scenes/killerfish.tscn" id="14_2u3nc"]
+[ext_resource type="Texture2D" uid="uid://dnnn32nnsiks2" path="res://Assets/Flora/flora_pipes_small.png" id="14_70uel"]
+[ext_resource type="Script" uid="uid://cnxfnfcjwqjdd" path="res://Scripts/Sonar/passive_sonar.gd" id="16_4h6ng"]
+[ext_resource type="AudioStream" uid="uid://byfwaqb2c6jqm" path="res://Assets/Audio/Sea/ambience_1.wav" id="17_26xuy"]
+[ext_resource type="PackedScene" uid="uid://bt7j1wmyvhnbk" path="res://Scenes/surface.tscn" id="17_mc2jv"]
+[ext_resource type="AudioStream" uid="uid://cs5ff4bqgdxv3" path="res://Assets/Audio/Sea/ambience_2.wav" id="18_bc84e"]
+[ext_resource type="AudioStream" uid="uid://ci1f3cxetjmg7" path="res://Assets/Audio/Sea/ambience_3.wav" id="19_wukud"]
+[ext_resource type="AudioStream" uid="uid://dtafun2kd5avs" path="res://Assets/Audio/Sea/ambience_4.wav" id="20_il2jm"]
+<<<<<<< HEAD
+[ext_resource type="PackedScene" uid="uid://g25c7tokxoec" path="res://Scenes/cave.tscn" id="28_o3ebs"]
+=======
+[ext_resource type="PackedScene" uid="uid://g25c7tokxoec" path="res://cave.tscn" id="28_o3ebs"]
+>>>>>>> 0f85414141d27d0113a225f664bd7de2e8eba49d
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ioo17"]
+shader = ExtResource("8_gbfbk")
+shader_parameter/fog_color = Color(0, 0, 0, 1)
+shader_parameter/density = 0.6
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_036b0"]
+radius = 56.0
+height = 714.0
+
+[sub_resource type="Gradient" id="Gradient_ioo17"]
+interpolation_mode = 2
+offsets = PackedFloat32Array(0.23317307, 1)
+colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 0.003921569)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_wse8f"]
+gradient = SubResource("Gradient_ioo17")
+width = 60
+height = 60
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 1)
+
+[sub_resource type="Gradient" id="Gradient_wse8f"]
+interpolation_mode = 2
+offsets = PackedFloat32Array(0, 0.83413464)
+colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_ic0uy"]
+gradient = SubResource("Gradient_wse8f")
+width = 30
+height = 30
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 1)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_70uel"]
+shader = ExtResource("9_2o6r5")
+shader_parameter/intensity = 2.2
+shader_parameter/alpha_boost = 1.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_hiqwa"]
+shader = ExtResource("9_2o6r5")
+shader_parameter/intensity = 1.6
+shader_parameter/alpha_boost = 1.0
+
+[sub_resource type="AudioStreamWAV" id="AudioStreamWAV_mc2jv"]
+
+[sub_resource type="AudioStreamPlaylist" id="AudioStreamPlaylist_k83mh"]
+shuffle = true
+stream_count = 4
+stream_0 = ExtResource("10_wjb0r")
+stream_1 = ExtResource("11_mc2jv")
+stream_2 = ExtResource("12_bo7i5")
+stream_3 = ExtResource("13_4h6ng")
+
+[sub_resource type="CanvasTexture" id="CanvasTexture_gbfbk"]
+
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_gbfbk"]
+blend_mode = 1
+
+[sub_resource type="Gradient" id="Gradient_pkg7o"]
+interpolation_mode = 2
+offsets = PackedFloat32Array(0, 0.60336536)
+colors = PackedColorArray(0.39857328, 0.74375874, 0.36965188, 1, 0, 0, 0, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_gbfbk"]
+gradient = SubResource("Gradient_pkg7o")
+width = 10
+height = 10
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 1)
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_gbfbk"]
+lifetime_randomness = 0.4
+particle_flag_disable_z = true
+emission_shape = 3
+emission_box_extents = Vector3(500, 1, 1)
+gravity = Vector3(0, 98, 0)
+turbulence_enabled = true
+turbulence_noise_speed = Vector3(0.7, 0.7, 0)
+
+[sub_resource type="AudioStreamPlaylist" id="AudioStreamPlaylist_wjb0r"]
+shuffle = true
+stream_count = 4
+stream_0 = ExtResource("17_26xuy")
+stream_1 = ExtResource("18_bc84e")
+stream_2 = ExtResource("19_wukud")
+stream_3 = ExtResource("20_il2jm")
+
+[node name="World" type="Node2D" unique_id=1567609957]
+script = ExtResource("1_f3sb7")
+
+[node name="Player" type="RigidBody2D" parent="." unique_id=1813092607]
+z_index = 1
+<<<<<<< HEAD
+position = Vector2(-397, 251)
+=======
+position = Vector2(-668, 354)
+>>>>>>> 0f85414141d27d0113a225f664bd7de2e8eba49d
+linear_damp = 4.0
+script = ExtResource("2_ioo17")
+
+[node name="camera" type="Camera2D" parent="Player" unique_id=271887535]
+z_index = 1
+offset = Vector2(250, 0)
+position_smoothing_enabled = true
+rotation_smoothing_enabled = true
+
+[node name="fog" type="ColorRect" parent="Player" unique_id=741272956]
+z_index = 10
+material = SubResource("ShaderMaterial_ioo17")
+offset_left = -710.0
+offset_top = -543.0
+offset_right = 1217.0
+offset_bottom = 530.0
+color = Color(0, 0, 0, 1)
+
+[node name="collider" type="CollisionShape2D" parent="Player" unique_id=622165343]
+position = Vector2(-57, -5)
+rotation = 1.5707964
+shape = SubResource("CapsuleShape2D_036b0")
+debug_color = Color(0.9987381, 0, 0.14610073, 0.41960785)
+
+[node name="sprite" type="Sprite2D" parent="Player" unique_id=1524320928]
+z_index = 1
+position = Vector2(-52.977615, -46.25)
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("4_mc2jv")
+
+[node name="light_front" type="PointLight2D" parent="Player" unique_id=371127658]
+z_index = 1
+position = Vector2(376, 78)
+rotation = -1.097812
+scale = Vector2(2, 2)
+texture = ExtResource("5_pkg7o")
+
+[node name="light_boat" type="PointLight2D" parent="Player" unique_id=421053750]
+z_index = 1
+position = Vector2(-81.49998, -8.749995)
+scale = Vector2(8.029411, 1.2303921)
+energy = 0.5
+texture = SubResource("GradientTexture2D_wse8f")
+texture_scale = 1.7
+
+[node name="light_turret" type="PointLight2D" parent="Player" unique_id=2021725739]
+z_index = 1
+position = Vector2(-43, -60)
+scale = Vector2(1.2666667, 1.2666667)
+color = Color(0.6627872, 0.9432212, 0.53917646, 1)
+energy = 0.8
+texture = SubResource("GradientTexture2D_ic0uy")
+
+[node name="light_keel" type="PointLight2D" parent="Player" unique_id=1778292083]
+z_index = 1
+position = Vector2(50, 75)
+scale = Vector2(4.3333335, 0.31343287)
+energy = 0.7
+texture = ExtResource("5_pkg7o")
+
+[node name="sonar" type="Node2D" parent="Player" unique_id=716117077]
+position = Vector2(291, -12)
+script = ExtResource("8_ic0uy")
+
+[node name="sonar_drawer" type="Node2D" parent="Player/sonar" unique_id=1773698385]
+material = SubResource("ShaderMaterial_70uel")
+script = ExtResource("9_k3n1d")
+
+[node name="sonar_cone" type="Node2D" parent="Player/sonar" unique_id=582459386]
+material = SubResource("ShaderMaterial_hiqwa")
+script = ExtResource("11_hiqwa")
+
+[node name="motor_player" type="AudioStreamPlayer2D" parent="Player" unique_id=820301452]
+stream = SubResource("AudioStreamWAV_mc2jv")
+volume_db = -8.0
+script = ExtResource("10_mc2jv")
+
+[node name="command_player" type="AudioStreamPlayer2D" parent="Player" unique_id=148105839]
+stream = SubResource("AudioStreamPlaylist_k83mh")
+script = ExtResource("10_yw8v8")
+
+[node name="passive_sonar" type="Node2D" parent="Player" unique_id=935812878]
+script = ExtResource("16_4h6ng")
+
+[node name="Surface" parent="." unique_id=750157342 instance=ExtResource("17_mc2jv")]
+position = Vector2(-2873, 2772)
+
+[node name="DebugBackground" type="Node2D" parent="." unique_id=1172600398]
+
+[node name="TextureRect" type="TextureRect" parent="DebugBackground" unique_id=2143294198]
+modulate = Color(0.011702106, 0.011702109, 0.011702107, 1)
+z_index = -1
+offset_left = -1602.0
+offset_top = -3483.0
+offset_right = 7998.0
+offset_bottom = 2877.0
+texture = SubResource("CanvasTexture_gbfbk")
+
+[node name="Particles" type="GPUParticles2D" parent="." unique_id=260648466]
+z_index = 20
+material = SubResource("CanvasItemMaterial_gbfbk")
+position = Vector2(437, -7)
+amount = 200
+amount_ratio = 0.8
+texture = SubResource("GradientTexture2D_gbfbk")
+lifetime = 7.0
+preprocess = 50.0
+speed_scale = 0.1
+randomness = 0.7
+process_material = SubResource("ParticleProcessMaterial_gbfbk")
+
+[node name="killerfish2" parent="." unique_id=467909731 instance=ExtResource("14_2u3nc")]
+position = Vector2(891, 140)
+<<<<<<< HEAD
+=======
+metadata/isOrganic = true
+>>>>>>> 0f85414141d27d0113a225f664bd7de2e8eba49d
+
+[node name="fishbone" type="Sprite2D" parent="." unique_id=1143035410]
+z_index = -1
+position = Vector2(-594, 404)
+rotation = -0.34906584
+texture = ExtResource("10_wse8f")
+
+[node name="FloraPipesSmall" type="Sprite2D" parent="." unique_id=928157122]
+z_index = -1
+position = Vector2(-157, 353)
+rotation = -0.20943952
+texture = ExtResource("14_70uel")
+
+[node name="killerfish" parent="." unique_id=734178996 instance=ExtResource("14_2u3nc")]
+position = Vector2(-50, 59)
+<<<<<<< HEAD
+=======
+metadata/isOrganic = true
+>>>>>>> 0f85414141d27d0113a225f664bd7de2e8eba49d
+
+[node name="CanvasModulate" type="CanvasModulate" parent="." unique_id=1578699134]
+visible = false
+color = Color(0.0142752165, 0.014275218, 0.014275218, 1)
+
+[node name="sea_ambiance_player" type="AudioStreamPlayer2D" parent="." unique_id=855004675]
+stream = SubResource("AudioStreamPlaylist_wjb0r")
+
+[node name="Cave" parent="." unique_id=119716322 instance=ExtResource("28_o3ebs")]
+position = Vector2(147, -267)

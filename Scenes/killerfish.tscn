@@ -1,0 +1,36 @@
+[gd_scene format=3 uid="uid://dbbnl7vhyyt7s"]
+
+[ext_resource type="Script" uid="uid://tvehll62f5xk" path="res://Scripts/World/killerfish.gd" id="1_p4n54"]
+[ext_resource type="Texture2D" uid="uid://c6rbbl2rftsyr" path="res://Assets/Fauna/killer_fish.png" id="2_wrm20"]
+
+[sub_resource type="Gradient" id="Gradient_ikiii"]
+offsets = PackedFloat32Array(0, 0.72289157)
+colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_cbp6q"]
+gradient = SubResource("Gradient_ikiii")
+width = 30
+height = 30
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+
+[node name="killerfish" type="RigidBody2D" unique_id=467909731]
+script = ExtResource("1_p4n54")
+
+[node name="sprite" type="Sprite2D" parent="." unique_id=1935417508]
+position = Vector2(-37.7, -37.7)
+scale = Vector2(0.12363281, 0.12363281)
+texture = ExtResource("2_wrm20")
+flip_h = true
+
+[node name="collider" type="CollisionPolygon2D" parent="." unique_id=236370626]
+position = Vector2(-13.049999, -8.700001)
+scale = Vector2(1.3398438, 1.3398438)
+polygon = PackedVector2Array(20.18892, -42.01983, -22.353355, -44.258896, -38.02683, -30.078136, -57.43207, -16.643734, -50.71487, 1.2688026, -41.01225, 1.2688026, -31.309628, -3.2093315, -17.875244, 4.2542305, -11.158051, 7.2396507, 8.247223, 10.971432, 11.232651, 0.5224495, 14.218075, -24.10729)
+
+[node name="light" type="PointLight2D" parent="." unique_id=489250821]
+position = Vector2(10, -62)
+scale = Vector2(2.3, 2.3)
+color = Color(0.8434691, 0.9974099, 0.7957217, 1)
+energy = 0.3
+texture = SubResource("GradientTexture2D_cbp6q")
