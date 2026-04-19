@@ -13,65 +13,37 @@ var command_locked := false
 const COMMAND_CONFIG := {
 	KEY_1: {
 		"multiplier": 1.0 / 3.0,
-<<<<<<< HEAD
 		"sound": preload("res://Assets/Audio/Sub/Comms/one_third_ahead.mp3"),
-=======
-		"sound": preload("res://Assets/Audio/Comms/one_third_ahead.mp3"),
->>>>>>> 0f85414141d27d0113a225f664bd7de2e8eba49d
 		"motor_stream": 1
 	},
 	KEY_2: {
 		"multiplier": 2.0 / 3.0,
-<<<<<<< HEAD
 		"sound": preload("res://Assets/Audio/Sub/Comms/two_third_ahead.mp3"),
-=======
-		"sound": preload("res://Assets/Audio/Comms/two_third_ahead.mp3"),
->>>>>>> 0f85414141d27d0113a225f664bd7de2e8eba49d
 		"motor_stream": 2
 	},
 	KEY_3: {
 		"multiplier": 1.0,
-<<<<<<< HEAD
 		"sound": preload("res://Assets/Audio/Sub/Comms/full_forward.mp3"),
-=======
-		"sound": preload("res://Assets/Audio/Comms/full_forward.mp3"),
->>>>>>> 0f85414141d27d0113a225f664bd7de2e8eba49d
 		"motor_stream": 3
 	},
 	KEY_4: {
 		"multiplier": 1.15,
-<<<<<<< HEAD
 		"sound": preload("res://Assets/Audio/Sub/Comms/go_flank_speed.mp3"),
-=======
-		"sound": preload("res://Assets/Audio/Comms/go_flank_speed.mp3"),
->>>>>>> 0f85414141d27d0113a225f664bd7de2e8eba49d
 		"motor_stream": 4
 	},
 	KEY_R: {
 		"multiplier": -2.0 / 3.0,
-<<<<<<< HEAD
 		"sound": preload("res://Assets/Audio/Sub/Comms/reverse.mp3"),
-=======
-		"sound": preload("res://Assets/Audio/Comms/reverse.mp3"),
->>>>>>> 0f85414141d27d0113a225f664bd7de2e8eba49d
 		"motor_stream": 1
 	},
 	KEY_S: {
 		"multiplier": 0.0,
-<<<<<<< HEAD
 		"sound": preload("res://Assets/Audio/Sub/Comms/full_stop.mp3"),
-=======
-		"sound": preload("res://Assets/Audio/Comms/full_stop.mp3"),
->>>>>>> 0f85414141d27d0113a225f664bd7de2e8eba49d
 		"motor_stream": 0
 	},
 	KEY_I: {
 		"type": "sonar_toggle",
-<<<<<<< HEAD
 		"sound": preload("res://Assets/Audio/Sub/Comms/i_hear_something.mp3")
-=======
-		"sound": preload("res://Assets/Audio/Comms/i_hear_something.mp3")
->>>>>>> 0f85414141d27d0113a225f664bd7de2e8eba49d
 	}
 }
 

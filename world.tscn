@@ -2,17 +2,13 @@
 
 [ext_resource type="Script" uid="uid://e0yput2wm383" path="res://Scripts/World/world.gd" id="1_f3sb7"]
 [ext_resource type="Script" uid="uid://78ibxss7w83b" path="res://Scripts/player.gd" id="2_ioo17"]
-<<<<<<< HEAD
 [ext_resource type="Texture2D" uid="uid://blp2fn20oib48" path="res://Assets/Sub/sub3.png" id="4_mc2jv"]
-=======
->>>>>>> 0f85414141d27d0113a225f664bd7de2e8eba49d
 [ext_resource type="Texture2D" uid="uid://bifcf2x6uredo" path="res://Assets/Sub/cone.png" id="5_pkg7o"]
 [ext_resource type="Shader" uid="uid://c3wxlcfd36hgt" path="res://Shader/fog.gdshader" id="8_gbfbk"]
 [ext_resource type="Script" uid="uid://6g6sb5s6wng8" path="res://Scripts/Sonar/sonar.gd" id="8_ic0uy"]
 [ext_resource type="Shader" uid="uid://bpi7gycpae318" path="res://Shader/sonar_echo.gdshader" id="9_2o6r5"]
 [ext_resource type="Script" uid="uid://c0jotx70wodmg" path="res://Scripts/Sonar/sonar_drawer.gd" id="9_k3n1d"]
 [ext_resource type="Script" uid="uid://bruj03e7iwhiu" path="res://Scripts/motor_player.gd" id="10_mc2jv"]
-<<<<<<< HEAD
 [ext_resource type="AudioStream" uid="uid://ilpyhljw4agg" path="res://Assets/Audio/Sub/Ship/motor_1.wav" id="10_wjb0r"]
 [ext_resource type="Texture2D" uid="uid://bp7llvo1hygmb" path="res://Assets/Terrrain/fishbone.png" id="10_wse8f"]
 [ext_resource type="Script" uid="uid://bxpm0gbq2dcpg" path="res://Scripts/command_player.gd" id="10_yw8v8"]
@@ -20,15 +16,6 @@
 [ext_resource type="AudioStream" uid="uid://chxpdkhhuw1ne" path="res://Assets/Audio/Sub/Ship/motor_2.wav" id="11_mc2jv"]
 [ext_resource type="AudioStream" uid="uid://b4pysvlcfggco" path="res://Assets/Audio/Sub/Ship/motor_3.wav" id="12_bo7i5"]
 [ext_resource type="AudioStream" uid="uid://ct82hfyrf26ts" path="res://Assets/Audio/Sub/Ship/motor_4.wav" id="13_4h6ng"]
-=======
-[ext_resource type="AudioStream" uid="uid://ilpyhljw4agg" path="res://Assets/Audio/Sub/motor_1.wav" id="10_wjb0r"]
-[ext_resource type="Texture2D" uid="uid://bp7llvo1hygmb" path="res://Assets/Terrrain/fishbone.png" id="10_wse8f"]
-[ext_resource type="Script" uid="uid://bxpm0gbq2dcpg" path="res://Scripts/command_player.gd" id="10_yw8v8"]
-[ext_resource type="Script" uid="uid://bxhobjr865gyw" path="res://Scripts/Sonar/sonar_cone_drawer.gd" id="11_hiqwa"]
-[ext_resource type="AudioStream" uid="uid://chxpdkhhuw1ne" path="res://Assets/Audio/Sub/motor_2.wav" id="11_mc2jv"]
-[ext_resource type="AudioStream" uid="uid://b4pysvlcfggco" path="res://Assets/Audio/Sub/motor_3.wav" id="12_bo7i5"]
-[ext_resource type="AudioStream" uid="uid://ct82hfyrf26ts" path="res://Assets/Audio/Sub/motor_4.wav" id="13_4h6ng"]
->>>>>>> 0f85414141d27d0113a225f664bd7de2e8eba49d
 [ext_resource type="PackedScene" uid="uid://dbbnl7vhyyt7s" path="res://Scenes/killerfish.tscn" id="14_2u3nc"]
 [ext_resource type="Texture2D" uid="uid://dnnn32nnsiks2" path="res://Assets/Flora/flora_pipes_small.png" id="14_70uel"]
 [ext_resource type="Script" uid="uid://cnxfnfcjwqjdd" path="res://Scripts/Sonar/passive_sonar.gd" id="16_4h6ng"]
@@ -37,11 +24,7 @@
 [ext_resource type="AudioStream" uid="uid://cs5ff4bqgdxv3" path="res://Assets/Audio/Sea/ambience_2.wav" id="18_bc84e"]
 [ext_resource type="AudioStream" uid="uid://ci1f3cxetjmg7" path="res://Assets/Audio/Sea/ambience_3.wav" id="19_wukud"]
 [ext_resource type="AudioStream" uid="uid://dtafun2kd5avs" path="res://Assets/Audio/Sea/ambience_4.wav" id="20_il2jm"]
-<<<<<<< HEAD
 [ext_resource type="PackedScene" uid="uid://g25c7tokxoec" path="res://Scenes/cave.tscn" id="28_o3ebs"]
-=======
-[ext_resource type="PackedScene" uid="uid://g25c7tokxoec" path="res://cave.tscn" id="28_o3ebs"]
->>>>>>> 0f85414141d27d0113a225f664bd7de2e8eba49d
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_ioo17"]
 shader = ExtResource("8_gbfbk")
@@ -138,11 +121,7 @@ script = ExtResource("1_f3sb7")
 
 [node name="Player" type="RigidBody2D" parent="." unique_id=1813092607]
 z_index = 1
-<<<<<<< HEAD
 position = Vector2(-397, 251)
-=======
-position = Vector2(-668, 354)
->>>>>>> 0f85414141d27d0113a225f664bd7de2e8eba49d
 linear_damp = 4.0
 script = ExtResource("2_ioo17")
 
@@ -256,10 +235,6 @@ process_material = SubResource("ParticleProcessMaterial_gbfbk")
 
 [node name="killerfish2" parent="." unique_id=467909731 instance=ExtResource("14_2u3nc")]
 position = Vector2(891, 140)
-<<<<<<< HEAD
-=======
-metadata/isOrganic = true
->>>>>>> 0f85414141d27d0113a225f664bd7de2e8eba49d
 
 [node name="fishbone" type="Sprite2D" parent="." unique_id=1143035410]
 z_index = -1
@@ -275,10 +250,6 @@ texture = ExtResource("14_70uel")
 
 [node name="killerfish" parent="." unique_id=734178996 instance=ExtResource("14_2u3nc")]
 position = Vector2(-50, 59)
-<<<<<<< HEAD
-=======
-metadata/isOrganic = true
->>>>>>> 0f85414141d27d0113a225f664bd7de2e8eba49d
 
 [node name="CanvasModulate" type="CanvasModulate" parent="." unique_id=1578699134]
 visible = false

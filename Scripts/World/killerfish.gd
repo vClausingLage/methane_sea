@@ -1,11 +1,7 @@
 extends RigidBody2D
 
 var isOrganic := true
-<<<<<<< HEAD
 @export var passive_sound: AudioStream = preload("res://Assets/Audio/Sub/Ship/hull_2.wav")
-=======
-@export var passive_sound: AudioStream = preload("res://Assets/Audio/Sub/hull_2.wav")
->>>>>>> 0f85414141d27d0113a225f664bd7de2e8eba49d
 @export_range(0.0, 1.0, 0.01) var passive_loudness := 0.8
 
 var direction := 'left'

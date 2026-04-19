@@ -35,21 +35,9 @@ static func is_organic_collider(collider: Object) -> bool:
 
 	var current := collider
 	while current != null:
-<<<<<<< HEAD
 		if _object_has_property(current, &"isOrganic") and bool(current.get("isOrganic")):
 			return true
 
-=======
-		if current.has_meta("isOrganic") and bool(current.get_meta("isOrganic")):
-			return true
-
-		if _object_has_property(current, &"isOrganic") and bool(current.get("isOrganic")):
-			return true
-
-		if _object_has_property(current, &"is_organic") and bool(current.get("is_organic")):
-			return true
-
->>>>>>> 0f85414141d27d0113a225f664bd7de2e8eba49d
 		if current is Node:
 			current = current.get_parent()
 		else:
