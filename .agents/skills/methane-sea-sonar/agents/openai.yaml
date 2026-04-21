@@ -1,0 +1,4 @@
+interface:
+  display_name: "Methane Sea Sonar"
+  short_description: "Maintain active and passive sonar"
+  default_prompt: "Use $methane-sea-sonar to change sonar behavior in methane_sea."

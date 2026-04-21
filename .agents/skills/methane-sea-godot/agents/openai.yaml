@@ -1,0 +1,4 @@
+interface:
+  display_name: "Methane Sea Godot"
+  short_description: "Work safely in this Godot project"
+  default_prompt: "Use $methane-sea-godot to make a scoped change in the methane_sea Godot project."

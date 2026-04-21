@@ -18,6 +18,7 @@ var timer := 0.0
 
 @onready var sonar_drawer: Node2D = $sonar_drawer
 @onready var cone_drawer: Node2D = $sonar_cone
+@onready var host_body: CollisionObject2D = get_parent() as CollisionObject2D
 
 
 func _process(delta):
@@ -61,6 +62,8 @@ func emit_sonar() -> void:
 		var target := global_position + dir * max_range
 
 		var query = PhysicsRayQueryParameters2D.create(global_position, target)
+		if host_body != null:
+			query.exclude = [host_body.get_rid()]
 		var result = space.intersect_ray(query)
 
 		if result.is_empty():

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Methane Sea Terrain"
+  short_description: "Maintain terrain, caves, and world actors"
+  default_prompt: "Use $methane-sea-terrain-world to change terrain or world actor behavior in methane_sea."

@@ -4,9 +4,12 @@ extends RigidBody2D
 @export var max_speed := 25.0
 @export var water_drag := 0.90
 @export var auto_level_speed := 0.4
-@export var idle_drift_force := 3.0
-@export var idle_drift_interval_min := 0.35
-@export var idle_drift_interval_max := 1.20
+@export var idle_drift_force := 18.0
+@export var idle_drift_interval_min := 1.20
+@export var idle_drift_interval_max := 3.20
+@export var idle_drift_vertical_bias := 0.65
+@export var idle_drift_torque := 10.0
+@export var idle_drift_sway_speed := 1.4
 
 var current_thrust_multiplier := 0.0
 var command_locked := false
@@ -35,7 +38,10 @@ func _ready():
 		water_drag,
 		idle_drift_force,
 		idle_drift_interval_min,
-		idle_drift_interval_max
+		idle_drift_interval_max,
+		idle_drift_vertical_bias,
+		idle_drift_torque,
+		idle_drift_sway_speed
 	)
 
 	command_player.command_pending_changed.connect(_on_command_pending_changed)

@@ -5,16 +5,12 @@ const SonarLogicScript := preload("res://Scripts/Sonar/sonar_logic.gd")
 
 class OrganicBody:
 	extends Node
-<<<<<<< HEAD
 	var isOrganic := true
 
 
 class OrganicParent:
 	extends Node
 	var isOrganic := true
-=======
-	var is_organic := true
->>>>>>> 0f85414141d27d0113a225f664bd7de2e8eba49d
 
 
 func test_build_ray_directions_spreads_rays_across_cone() -> void:
@@ -45,27 +41,17 @@ func test_build_echo_ignores_hits_at_max_range() -> void:
 	assert_true(echo.is_empty())
 
 
-<<<<<<< HEAD
-func test_is_organic_collider_detects_is_organic_var_on_parent() -> void:
-	var parent := OrganicParent.new()
-	var collider := Node.new()
-=======
 func test_is_organic_collider_detects_metadata_on_parent() -> void:
 	var parent := Node.new()
 	var collider := Node.new()
 	parent.set_meta("isOrganic", true)
->>>>>>> 0f85414141d27d0113a225f664bd7de2e8eba49d
 	parent.add_child(collider)
 	add_child_autofree(parent)
 
 	assert_true(SonarLogicScript.is_organic_collider(collider))
 
 
-<<<<<<< HEAD
-func test_is_organic_collider_detects_is_organic_var_on_collider() -> void:
-=======
 func test_is_organic_collider_detects_snake_case_property() -> void:
->>>>>>> 0f85414141d27d0113a225f664bd7de2e8eba49d
 	var collider := OrganicBody.new()
 	add_child_autofree(collider)
 

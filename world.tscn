@@ -233,9 +233,6 @@ speed_scale = 0.1
 randomness = 0.7
 process_material = SubResource("ParticleProcessMaterial_gbfbk")
 
-[node name="killerfish2" parent="." unique_id=467909731 instance=ExtResource("14_2u3nc")]
-position = Vector2(891, 140)
-
 [node name="fishbone" type="Sprite2D" parent="." unique_id=1143035410]
 z_index = -1
 position = Vector2(-594, 404)
@@ -252,7 +249,6 @@ texture = ExtResource("14_70uel")
 position = Vector2(-50, 59)
 
 [node name="CanvasModulate" type="CanvasModulate" parent="." unique_id=1578699134]
-visible = false
 color = Color(0.0142752165, 0.014275218, 0.014275218, 1)
 
 [node name="sea_ambiance_player" type="AudioStreamPlayer2D" parent="." unique_id=855004675]
