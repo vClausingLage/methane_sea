@@ -1,18 +1,18 @@
 extends Node2D
 
-@export var emitter_group := &"passive_sound_emitters"
-@export var base_range := 1200.0
-@export var min_audible_strength := 0.03
-@export var max_simultaneous_contacts := 5
+var emitter_group := &"passive_sound_emitters"
+var base_range := 1200.0
+var min_audible_strength := 0.03
+var max_simultaneous_contacts := 5
 
-@export var full_strength_volume_db := -8.0
-@export var directional_hint_radius := 120.0
-@export var directional_hint_width := 4.0
-@export var directional_hint_color := Color(0.373, 0.597, 0.643, 0.851)
-@export var directional_fade_speed := 3.2
+var full_strength_volume_db := -8.0
+var directional_hint_radius := 120.0
+var directional_hint_width := 4.0
+var directional_hint_color := Color(0.373, 0.597, 0.643, 0.851)
+var directional_fade_speed := 3.2
 
-@export var engine_penalty_at_full := 0.55
-@export var engine_penalty_volume_db := 10.0
+var engine_penalty_at_full := 0.55
+var engine_penalty_volume_db := 10.0
 
 var contact_players := {}
 var visual_contacts := []

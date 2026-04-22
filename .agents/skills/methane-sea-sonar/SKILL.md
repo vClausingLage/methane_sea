@@ -28,12 +28,6 @@ Read `references/sonar-contracts.md` before changing behavior.
 
 ## Common Checks
 
-Before trusting sonar tests, check for conflict markers:
-
-```powershell
-rg -n "<<<<<<<|=======|>>>>>>>" Scripts/Sonar test/unit
-```
-
 Run the sonar tests with GUT when Godot is available:
 
 ```powershell

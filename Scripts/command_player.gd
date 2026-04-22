@@ -2,12 +2,12 @@ extends AudioStreamPlayer2D
 class_name CommandPlayer
 
 signal command_pending_changed(is_pending: bool)
-signal command_resolved(thrust_multiplier: float, motor_stream: int)
+signal command_resolved(thrust_multiplier: float, vertical_multiplier: float, motor_stream: int)
 signal sonar_toggle_requested
 
-@export var flank_thrust_multiplier := 1.15
-@export var command_delay_min := 0.20
-@export var command_delay_max := 0.55
+var flank_thrust_multiplier := 1.15
+var command_delay_min := .9
+var command_delay_max := 2
 var command_locked := false
 
 const COMMAND_CONFIG := {
@@ -41,6 +41,21 @@ const COMMAND_CONFIG := {
 		"sound": preload("res://Assets/Audio/Sub/Comms/full_stop.mp3"),
 		"motor_stream": 0
 	},
+	KEY_X: {
+		"vertical_multiplier": -0.65,
+		"sound": preload("res://Assets/Audio/Sub/Comms/ascend.mp3"),
+		"motor_stream": -1
+	},
+	KEY_Y: {
+		"vertical_multiplier": 0.65,
+		"sound": preload("res://Assets/Audio/Sub/Comms/descend.mp3"),
+		"motor_stream": -1
+	},
+	KEY_V: {
+		"vertical_multiplier": 0.0,
+		"sound": preload("res://Assets/Audio/Sub/Comms/keep_depth.mp3"),
+		"motor_stream": -1
+	},
 	KEY_I: {
 		"type": "sonar_toggle",
 		"sound": preload("res://Assets/Audio/Sub/Comms/i_hear_something.mp3")
@@ -60,12 +75,14 @@ func issue_key_command(keycode: Key) -> bool:
 		_issue_sonar_toggle_command(command_data["sound"] as AudioStream)
 		return true
 
-	var multiplier := float(command_data["multiplier"])
+	var multiplier := float(command_data.get("multiplier", NAN))
 	if keycode == KEY_4:
 		multiplier = flank_thrust_multiplier
+	var vertical_multiplier := float(command_data.get("vertical_multiplier", NAN))
 
 	_issue_command(
 		multiplier,
+		vertical_multiplier,
 		command_data["sound"] as AudioStream,
 		int(command_data["motor_stream"])
 	)
@@ -76,7 +93,7 @@ func is_command_locked() -> bool:
 	return command_locked
 
 
-func _issue_command(multiplier: float, sound: AudioStream, motor_stream: int) -> void:
+func _issue_command(multiplier: float, vertical_multiplier: float, sound: AudioStream, motor_stream: int) -> void:
 	command_locked = true
 	command_pending_changed.emit(true)
 	_play_command_sound(sound)
@@ -84,7 +101,7 @@ func _issue_command(multiplier: float, sound: AudioStream, motor_stream: int) ->
 	var delay := randf_range(command_delay_min, command_delay_max)
 	await get_tree().create_timer(delay).timeout
 
-	command_resolved.emit(multiplier, motor_stream)
+	command_resolved.emit(multiplier, vertical_multiplier, motor_stream)
 	_release_lock()
 
 

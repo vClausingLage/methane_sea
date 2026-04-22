@@ -2,8 +2,11 @@ extends RefCounted
 class_name SubmarineMovement
 
 var thrust := 50.0
+var vertical_thrust := 34.0
 var max_speed := 25.0
 var water_drag := 0.90
+var depth_pitch_angle := deg_to_rad(5.0)
+var depth_pitch_speed := 0.55
 var idle_drift_force := 18.0
 var idle_drift_interval_min := 1.20
 var idle_drift_interval_max := 3.20
@@ -46,10 +49,11 @@ func auto_level(body: RigidBody2D, delta: float, auto_level_speed: float) -> voi
 		body.rotation = 0.0
 
 
-func apply_movement(body: RigidBody2D, delta: float, thrust_multiplier: float) -> void:
+func apply_movement(body: RigidBody2D, delta: float, thrust_multiplier: float, vertical_multiplier: float = 0.0) -> void:
 	var direction := Vector2.RIGHT.rotated(body.rotation)
-	if thrust_multiplier != 0.0:
+	if thrust_multiplier != 0.0 or vertical_multiplier != 0.0:
 		body.apply_central_force(direction * thrust * thrust_multiplier)
+		body.apply_central_force(Vector2.DOWN * vertical_thrust * vertical_multiplier)
 	else:
 		idle_drift_timer -= delta
 		idle_drift_phase += delta * idle_drift_sway_speed
@@ -60,6 +64,9 @@ func apply_movement(body: RigidBody2D, delta: float, thrust_multiplier: float) -
 		var sway := Vector2.UP.rotated(body.rotation) * sin(idle_drift_phase) * idle_drift_force * 0.35
 		body.apply_central_force(idle_drift_direction * idle_drift_force + sway)
 		body.apply_torque(sin(idle_drift_phase * 0.73) * idle_drift_torque)
+
+	var target_rotation := depth_pitch_angle * signf(vertical_multiplier)
+	body.rotation = lerp_angle(body.rotation, target_rotation, depth_pitch_speed * delta)
 
 	if body.linear_velocity.length() > max_speed:
 		body.linear_velocity = body.linear_velocity.normalized() * max_speed

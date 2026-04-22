@@ -1,16 +1,16 @@
 extends Node2D
 
-@export var cone_angle := 30.0
-@export var rays := 40
-@export var max_range := 600.0
+var cone_angle := 30.0
+var rays := 40
+var max_range := 600.0
 
-@export var wave_speed := 400.0
-@export var pulse_interval := 2.0
+var wave_speed := 400.0
+var pulse_interval := 2.0
 
-@export var rotation_speed := 12.0
-@export var rotation_limit := 80.0
+var rotation_speed := 12.0
+var rotation_limit := 80.0
 
-@export var cone_visual_distance := 400.0
+var cone_visual_distance := 400.0
 
 @export_enum("manual", "auto") var mode: String = "manual"
 

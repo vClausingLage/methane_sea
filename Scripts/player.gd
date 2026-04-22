@@ -1,17 +1,18 @@
 extends RigidBody2D
 
-@export var thrust := 50.0
-@export var max_speed := 25.0
-@export var water_drag := 0.90
-@export var auto_level_speed := 0.4
-@export var idle_drift_force := 18.0
-@export var idle_drift_interval_min := 1.20
-@export var idle_drift_interval_max := 3.20
-@export var idle_drift_vertical_bias := 0.65
-@export var idle_drift_torque := 10.0
-@export var idle_drift_sway_speed := 1.4
+var thrust := 50.0
+var max_speed := 25.0
+var water_drag := 0.90
+var auto_level_speed := 0.4
+var idle_drift_force := 18.0
+var idle_drift_interval_min := 1.20
+var idle_drift_interval_max := 3.20
+var idle_drift_vertical_bias := 0.65
+var idle_drift_torque := 10.0
+var idle_drift_sway_speed := 1.4
 
 var current_thrust_multiplier := 0.0
+var current_vertical_multiplier := 0.0
 var command_locked := false
 var sonar_enabled := true
 var movement: SubmarineMovement
@@ -65,7 +66,7 @@ func _physics_process(delta):
 	if not command_locked and Input.is_key_pressed(KEY_ENTER):
 		movement.auto_level(self, delta, auto_level_speed)
 
-	movement.apply_movement(self, delta, current_thrust_multiplier)
+	movement.apply_movement(self, delta, current_thrust_multiplier, current_vertical_multiplier)
 
 
 func _handle_scan_input(delta: float) -> void:
@@ -86,9 +87,13 @@ func _on_command_pending_changed(is_pending: bool) -> void:
 	command_locked = is_pending
 
 
-func _on_command_resolved(multiplier: float, motor_stream: int) -> void:
-	current_thrust_multiplier = multiplier
-	motor_player.play_stream(motor_stream)
+func _on_command_resolved(multiplier: float, vertical_multiplier: float, motor_stream: int) -> void:
+	if not is_nan(multiplier):
+		current_thrust_multiplier = multiplier
+	if not is_nan(vertical_multiplier):
+		current_vertical_multiplier = vertical_multiplier
+	if motor_stream >= 0:
+		motor_player.play_stream(motor_stream)
 
 
 func _on_sonar_toggle_requested() -> void:

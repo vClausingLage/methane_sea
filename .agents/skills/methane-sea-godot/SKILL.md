@@ -7,13 +7,6 @@ description: Project-specific Godot workflow for methane_sea. Use when Codex wor
 
 ## Quick Start
 
-Confirm the working tree before editing:
-
-```powershell
-git status --short
-rg -n "<<<<<<<|=======|>>>>>>>" .
-```
-
 Prefer scoped edits in `Scripts/`, `Scenes/`, `Shader/`, or `test/unit/`. Avoid changing `.godot/`, generated `.uid` files, imported asset metadata, and `world.tscn*.tmp` unless the user explicitly asks.
 
 Read `references/project-map.md` for the current architecture and validation workflow.
@@ -28,13 +21,6 @@ Read `references/project-map.md` for the current architecture and validation wor
 - Do not trust test results if merge-conflict markers are present. Resolve or report conflicts first depending on the user request.
 
 ## Validation
-
-Run focused text checks first:
-
-```powershell
-rg -n "<<<<<<<|=======|>>>>>>>" Scripts test Scenes project.godot
-rg -n "push_error|TODO|FIXME" Scripts test
-```
 
 Run GUT when Godot is available on PATH:
 

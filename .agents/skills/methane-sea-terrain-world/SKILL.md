@@ -27,10 +27,4 @@ Read `references/terrain-world-map.md` for node contracts and regeneration behav
 
 ## Validation
 
-Check for scene and script conflicts:
-
-```powershell
-rg -n "<<<<<<<|=======|>>>>>>>" Scripts/Cave Scripts/Surface Scripts/World Scenes world.tscn
-```
-
 When changing terrain generation, verify both editor-time and runtime assumptions: exported setters should clamp values, `generate()` should tolerate missing optional nodes with warnings or no-ops, and runtime restoration should rebuild collision from saved visual edge data when needed.
