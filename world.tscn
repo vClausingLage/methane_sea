@@ -24,6 +24,19 @@
 [ext_resource type="AudioStream" uid="uid://ci1f3cxetjmg7" path="res://Assets/Audio/Sea/ambience_3.wav" id="19_wukud"]
 [ext_resource type="AudioStream" uid="uid://dtafun2kd5avs" path="res://Assets/Audio/Sea/ambience_4.wav" id="20_il2jm"]
 [ext_resource type="PackedScene" uid="uid://g25c7tokxoec" path="res://Scenes/cave.tscn" id="28_o3ebs"]
+[ext_resource type="Script" uid="uid://d2h3b230m0nt8" path="res://Scripts/World/water_background.gd" id="29_h7nh8"]
+[ext_resource type="Shader" uid="uid://lainnytghn6v" path="res://Shader/water_background.gdshader" id="30_8qqh8"]
+[ext_resource type="PackedScene" uid="uid://c66ek3ftkl2h2" path="res://Scenes/submarine_panel.tscn" id="31_6i0e2"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_8qqh8"]
+shader = ExtResource("30_8qqh8")
+shader_parameter/deep_color = Color(0.05, 0.08, 0.11, 1)
+shader_parameter/mid_color = Color(0.08, 0.12, 0.16, 1)
+shader_parameter/highlight_color = Color(0.14, 0.19, 0.23, 1)
+shader_parameter/wave_scale = 5.0
+shader_parameter/wave_speed = 0.18
+shader_parameter/contrast = 0.18
+shader_parameter/ripple_strength = 0.2
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_ioo17"]
 shader = ExtResource("8_gbfbk")
@@ -80,8 +93,6 @@ stream_1 = ExtResource("11_mc2jv")
 stream_2 = ExtResource("12_bo7i5")
 stream_3 = ExtResource("13_4h6ng")
 
-[sub_resource type="CanvasTexture" id="CanvasTexture_gbfbk"]
-
 [sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_gbfbk"]
 blend_mode = 1
 
@@ -118,11 +129,30 @@ stream_3 = ExtResource("20_il2jm")
 [node name="World" type="Node2D" unique_id=1567609957]
 script = ExtResource("1_f3sb7")
 
+[node name="WaterBackground" type="Node2D" parent="." unique_id=788244513]
+z_index = -20
+script = ExtResource("29_h7nh8")
+
+[node name="Backdrop" type="ColorRect" parent="WaterBackground" unique_id=153227842]
+material = SubResource("ShaderMaterial_8qqh8")
+offset_left = -1280.0
+offset_top = -720.0
+offset_right = 1280.0
+offset_bottom = 720.0
+
+[node name="SubmarinePanel" parent="." unique_id=1545928662 instance=ExtResource("31_6i0e2")]
+
 [node name="Player" type="RigidBody2D" parent="." unique_id=1813092607]
 z_index = 1
 position = Vector2(-859, 283)
 linear_damp = 4.0
 script = ExtResource("2_ioo17")
+
+[node name="sprite" type="Sprite2D" parent="Player" unique_id=1524320928]
+z_index = 1
+position = Vector2(-52.9776, -46.25)
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("4_mc2jv")
 
 [node name="camera" type="Camera2D" parent="Player" unique_id=271887535]
 z_index = 1
@@ -145,12 +175,6 @@ rotation = 1.5707964
 shape = SubResource("CapsuleShape2D_036b0")
 debug_color = Color(0.9987381, 0, 0.14610073, 0.41960785)
 
-[node name="sprite" type="Sprite2D" parent="Player" unique_id=1524320928]
-z_index = 1
-position = Vector2(-52.977615, -46.25)
-scale = Vector2(0.5, 0.5)
-texture = ExtResource("4_mc2jv")
-
 [node name="light_front" type="PointLight2D" parent="Player" unique_id=371127658]
 z_index = 1
 position = Vector2(417, 97.99998)
@@ -166,7 +190,7 @@ energy = 0.5
 texture = SubResource("GradientTexture2D_wse8f")
 texture_scale = 1.7
 
-[node name="light_turret" type="PointLight2D" parent="Player" unique_id=2021725739]
+[node name="light_position" type="PointLight2D" parent="Player" unique_id=2021725739]
 z_index = 1
 position = Vector2(-43, -60)
 scale = Vector2(1.2666667, 1.2666667)
@@ -175,10 +199,20 @@ energy = 0.8
 texture = SubResource("GradientTexture2D_ic0uy")
 
 [node name="light_keel" type="PointLight2D" parent="Player" unique_id=1778292083]
+visible = false
 z_index = 1
 position = Vector2(57.000023, 89)
 scale = Vector2(7.104167, 0.51492536)
 energy = 1.3
+texture = ExtResource("5_pkg7o")
+
+[node name="light_turret" type="PointLight2D" parent="Player" unique_id=1362205982]
+z_index = 1
+position = Vector2(345, -149)
+rotation = -1.9198622
+scale = Vector2(3.6717532, 5.744559)
+skew = 0.15667915
+energy = 0.8
 texture = ExtResource("5_pkg7o")
 
 [node name="sonar" type="Node2D" parent="Player" unique_id=716117077]
@@ -193,6 +227,9 @@ script = ExtResource("9_k3n1d")
 material = SubResource("ShaderMaterial_hiqwa")
 script = ExtResource("11_hiqwa")
 
+[node name="passive_sonar" type="Node2D" parent="Player" unique_id=935812878]
+script = ExtResource("16_4h6ng")
+
 [node name="motor_player" type="AudioStreamPlayer2D" parent="Player" unique_id=820301452]
 stream = SubResource("AudioStreamWAV_mc2jv")
 volume_db = -8.0
@@ -201,20 +238,6 @@ script = ExtResource("10_mc2jv")
 [node name="command_player" type="AudioStreamPlayer2D" parent="Player" unique_id=148105839]
 stream = SubResource("AudioStreamPlaylist_k83mh")
 script = ExtResource("10_yw8v8")
-
-[node name="passive_sonar" type="Node2D" parent="Player" unique_id=935812878]
-script = ExtResource("16_4h6ng")
-
-[node name="DebugBackground" type="Node2D" parent="." unique_id=1172600398]
-
-[node name="TextureRect" type="TextureRect" parent="DebugBackground" unique_id=2143294198]
-modulate = Color(0.011702106, 0.011702109, 0.011702107, 1)
-z_index = -1
-offset_left = -1602.0
-offset_top = -3483.0
-offset_right = 7998.0
-offset_bottom = 2877.0
-texture = SubResource("CanvasTexture_gbfbk")
 
 [node name="Particles" type="GPUParticles2D" parent="." unique_id=260648466]
 z_index = 20
