@@ -100,6 +100,7 @@ var depth_button_offsets := {
 
 
 func _ready() -> void:
+	$Root.mouse_filter = Control.MOUSE_FILTER_PASS
 	thrust_buttons = {
 		KEY_1: one_third_button,
 		KEY_2: two_third_button,
@@ -116,6 +117,7 @@ func _ready() -> void:
 	startup_buttons = [generator_button, cooling_button, reactor_button, diagnostics_button]
 	helm_buttons = [one_third_button, two_third_button, full_button, flank_button, reverse_button, stop_button, ascend_button, hold_button, descend_button, sonar_button]
 	for button in startup_buttons + helm_buttons:
+		button.mouse_filter = Control.MOUSE_FILTER_STOP
 		button.pivot_offset = button.custom_minimum_size * 0.5
 		press_feedback[button] = 0.0
 
@@ -166,24 +168,61 @@ func _process(delta: float) -> void:
 
 
 func _on_generator_pressed() -> void:
+	if startup_pending_step != "":
+		_set_status("Startup bus busy. Await current relay action.")
+		return
+	if generator_online:
+		_set_status("Generator bus is already online.")
+		return
 	_begin_startup_step("generator", "Closing generator relay...")
 
 
 func _on_cooling_pressed() -> void:
+	if startup_pending_step != "":
+		_set_status("Startup bus busy. Await current relay action.")
+		return
+	if not generator_online:
+		_set_status("Generator must be online before cooling.")
+		return
+	if cooling_online:
+		_set_status("Cooling loop is already stable.")
+		return
 	_begin_startup_step("cooling", "Spinning coolant pumps...")
 
 
 func _on_reactor_pressed() -> void:
+	if startup_pending_step != "":
+		_set_status("Startup bus busy. Await current relay action.")
+		return
+	if not cooling_online:
+		_set_status("Cooling must be online before reactor startup.")
+		return
+	if reactor_online:
+		_set_status("Reactor is already online.")
+		return
 	_begin_startup_step("reactor", "Reactor startup sequence running...")
 
 
 func _on_diagnostics_pressed() -> void:
+	if startup_pending_step != "":
+		_set_status("Startup bus busy. Await current relay action.")
+		return
+	if not reactor_online:
+		_set_status("Reactor must be online before diagnostics.")
+		return
+	if diagnostics_complete:
+		_set_status("Diagnostics already passed.")
+		return
 	_begin_startup_step("diagnostics", "Running startup diagnostics...")
 
 
 func _issue_command(keycode: Key, message: String) -> void:
 	if player == null or not player.has_method("issue_panel_command"):
 		_set_status("Panel link to player is unavailable.")
+		return
+
+	if not diagnostics_complete:
+		_set_status("Helm controls are offline. Complete startup first.")
 		return
 
 	var accepted: bool = bool(player.call("issue_panel_command", keycode))
@@ -293,14 +332,12 @@ func _apply_player_state(state: Dictionary) -> void:
 
 func _set_startup_button_state(button: TextureButton, is_active: bool, is_enabled: bool) -> void:
 	_set_control_state(button, is_active, is_enabled)
-	button.disabled = not is_enabled
 
 
 func _set_control_state(button: TextureButton, is_active: bool, is_enabled: bool) -> void:
 	if button == null:
 		return
 
-	button.disabled = not is_enabled
 	if not is_enabled:
 		button.modulate = CONTROL_DISABLED
 	elif is_active:
@@ -425,8 +462,8 @@ func _animate_controls(active_thrust_key: Key, active_depth_key: Key, sonar_onli
 	sonar_button.scale = sonar_button.scale.lerp(Vector2.ONE * sonar_scale, 0.18)
 
 	for button in startup_buttons:
-		var pending_shift: float = _get_press_amount(button) * 2.0
-		button.position = button.position.lerp(Vector2(0, pending_shift), 0.2)
+		var press_scale: float = 1.0 - _get_press_amount(button) * 0.05
+		button.scale = button.scale.lerp(Vector2.ONE * press_scale, 0.18)
 
 
 func _mark_button_press(button: TextureButton, sound_kind: String) -> void:

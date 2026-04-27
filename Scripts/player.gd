@@ -10,6 +10,8 @@ var idle_drift_interval_max := 3.20
 var idle_drift_vertical_bias := 0.65
 var idle_drift_torque := 10.0
 var idle_drift_sway_speed := 1.4
+var camera_forward_offset := 200.0
+var camera_offset_smoothness := 1
 
 var current_thrust_multiplier := 0.0
 var current_vertical_multiplier := 0.0
@@ -24,8 +26,10 @@ var light_energy_by_name: Dictionary = {}
 var battery_charge := 0.18
 var last_command_key: Key = KEY_NONE
 var movement: SubmarineMovement
+var camera_base_offset := Vector2.ZERO
 
 @onready var sonar: Node2D = $sonar
+@onready var camera: Camera2D = $camera
 @onready var command_player: CommandPlayer = $command_player
 @onready var motor_player: MotorPlayer = $motor_player
 @onready var fog: ColorRect = $fog
@@ -59,6 +63,9 @@ func _ready():
 		idle_drift_sway_speed
 	)
 
+	if camera:
+		camera_base_offset = camera.offset
+
 	command_player.command_pending_changed.connect(_on_command_pending_changed)
 	command_player.command_resolved.connect(_on_command_resolved)
 	command_player.sonar_toggle_requested.connect(_on_sonar_toggle_requested)
@@ -83,6 +90,7 @@ func _physics_process(delta):
 		current_vertical_multiplier = 0.0
 		linear_velocity *= water_drag
 		angular_velocity *= water_drag
+		_update_camera_offset(delta)
 		return
 
 	_handle_scan_input(delta)
@@ -91,6 +99,7 @@ func _physics_process(delta):
 		movement.auto_level(self, delta, auto_level_speed)
 
 	movement.apply_movement(self, delta, current_thrust_multiplier, current_vertical_multiplier)
+	_update_camera_offset(delta)
 
 
 func _handle_scan_input(delta: float) -> void:
@@ -105,6 +114,18 @@ func _handle_scan_input(delta: float) -> void:
 
 	if not command_locked and Input.is_key_pressed(KEY_SPACE) and sonar.has_method("scan"):
 		sonar.call("scan")
+
+
+func _update_camera_offset(delta: float) -> void:
+	if camera == null:
+		return
+
+	var target_x := camera_base_offset.x
+	if current_thrust_multiplier > 0.0:
+		target_x += camera_forward_offset
+
+	camera.offset.x = lerpf(camera.offset.x, target_x, clamp(camera_offset_smoothness * delta, 0.0, 1.0))
+	camera.offset.y = camera_base_offset.y
 
 
 func _on_command_pending_changed(is_pending: bool) -> void:

@@ -32,15 +32,19 @@ corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_switch"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_generator_switch"]
 atlas = ExtResource("2_xc6gp")
 region = Rect2(164, 34, 33, 60.52279)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_gauge"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_cooling_switch"]
+atlas = ExtResource("2_xc6gp")
+region = Rect2(164, 34, 33, 60.52279)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_reactor_gauge"]
 atlas = ExtResource("2_xc6gp")
 region = Rect2(257.2568, 3.366703, 31.573425, 30.414757)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_monitor"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_diagnostics_monitor"]
 atlas = ExtResource("2_xc6gp")
 region = Rect2(91.241776, 220.9522, 87.13278, 55.518204)
 
@@ -48,9 +52,61 @@ region = Rect2(91.241776, 220.9522, 87.13278, 55.518204)
 atlas = ExtResource("2_xc6gp")
 region = Rect2(242.41434, 262.78186, 9.959106, 17.9859)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_knob"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_battery_gauge"]
+atlas = ExtResource("2_xc6gp")
+region = Rect2(257.2568, 3.366703, 31.573425, 30.414757)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_load_gauge"]
+atlas = ExtResource("2_xc6gp")
+region = Rect2(257.2568, 3.366703, 31.573425, 30.414757)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_throttle_knob_1"]
 atlas = ExtResource("2_xc6gp")
 region = Rect2(203.33127, 49.93683, 37.66873, 36.961174)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_throttle_pressed_1"]
+atlas = ExtResource("2_xc6gp")
+region = Rect2(257.2568, 3.366703, 31.573425, 30.414757)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_throttle_knob_2"]
+atlas = ExtResource("2_xc6gp")
+region = Rect2(203.33127, 49.93683, 37.66873, 36.961174)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_throttle_pressed_2"]
+atlas = ExtResource("2_xc6gp")
+region = Rect2(257.2568, 3.366703, 31.573425, 30.414757)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_throttle_knob_3"]
+atlas = ExtResource("2_xc6gp")
+region = Rect2(203.33127, 49.93683, 37.66873, 36.961174)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_throttle_pressed_3"]
+atlas = ExtResource("2_xc6gp")
+region = Rect2(257.2568, 3.366703, 31.573425, 30.414757)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_throttle_knob_4"]
+atlas = ExtResource("2_xc6gp")
+region = Rect2(203.33127, 49.93683, 37.66873, 36.961174)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_throttle_pressed_4"]
+atlas = ExtResource("2_xc6gp")
+region = Rect2(257.2568, 3.366703, 31.573425, 30.414757)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_throttle_knob_5"]
+atlas = ExtResource("2_xc6gp")
+region = Rect2(203.33127, 49.93683, 37.66873, 36.961174)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_throttle_pressed_5"]
+atlas = ExtResource("2_xc6gp")
+region = Rect2(257.2568, 3.366703, 31.573425, 30.414757)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_throttle_knob_6"]
+atlas = ExtResource("2_xc6gp")
+region = Rect2(203.33127, 49.93683, 37.66873, 36.961174)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_throttle_pressed_6"]
+atlas = ExtResource("2_xc6gp")
+region = Rect2(257.2568, 3.366703, 31.573425, 30.414757)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_slider"]
 atlas = ExtResource("2_xc6gp")
@@ -59,6 +115,10 @@ region = Rect2(173, 108, 62, 52)
 [sub_resource type="AtlasTexture" id="AtlasTexture_sonar"]
 atlas = ExtResource("2_xc6gp")
 region = Rect2(259, 77, 58, 19)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_monitor"]
+atlas = ExtResource("2_xc6gp")
+region = Rect2(91.241776, 220.9522, 87.13278, 55.518204)
 
 [node name="SubmarinePanel" type="CanvasLayer" unique_id=1003678500]
 layer = 3
@@ -144,34 +204,36 @@ text = "Startup Bus"
 [node name="StartupGrid" type="GridContainer" parent="Root/Dock/Shell/Padding/Content/TopRow/HeaderCluster/StartupRack/StartupPadding/StartupStack" unique_id=1423398740]
 layout_mode = 2
 columns = 2
+theme_override_constants/h_separation = 6
+theme_override_constants/v_separation = 6
 
 [node name="GeneratorButton" type="TextureButton" parent="Root/Dock/Shell/Padding/Content/TopRow/HeaderCluster/StartupRack/StartupPadding/StartupStack/StartupGrid" unique_id=2005894191]
-custom_minimum_size = Vector2(52, 28)
+custom_minimum_size = Vector2(52, 38)
 layout_mode = 2
-texture_normal = SubResource("AtlasTexture_switch")
+texture_normal = SubResource("AtlasTexture_generator_switch")
 ignore_texture_size = true
-stretch_mode = 5
+stretch_mode = 0
 
 [node name="CoolingButton" type="TextureButton" parent="Root/Dock/Shell/Padding/Content/TopRow/HeaderCluster/StartupRack/StartupPadding/StartupStack/StartupGrid" unique_id=1566233786]
-custom_minimum_size = Vector2(52, 28)
+custom_minimum_size = Vector2(52, 38)
 layout_mode = 2
-texture_normal = SubResource("AtlasTexture_switch")
+texture_normal = SubResource("AtlasTexture_cooling_switch")
 ignore_texture_size = true
-stretch_mode = 5
+stretch_mode = 0
 
 [node name="ReactorButton" type="TextureButton" parent="Root/Dock/Shell/Padding/Content/TopRow/HeaderCluster/StartupRack/StartupPadding/StartupStack/StartupGrid" unique_id=533621296]
 custom_minimum_size = Vector2(52, 38)
 layout_mode = 2
-texture_normal = SubResource("AtlasTexture_gauge")
+texture_normal = SubResource("AtlasTexture_reactor_gauge")
 ignore_texture_size = true
-stretch_mode = 5
+stretch_mode = 0
 
 [node name="DiagnosticsButton" type="TextureButton" parent="Root/Dock/Shell/Padding/Content/TopRow/HeaderCluster/StartupRack/StartupPadding/StartupStack/StartupGrid" unique_id=405902613]
 custom_minimum_size = Vector2(52, 38)
 layout_mode = 2
-texture_normal = SubResource("AtlasTexture_monitor")
+texture_normal = SubResource("AtlasTexture_diagnostics_monitor")
 ignore_texture_size = true
-stretch_mode = 5
+stretch_mode = 0
 
 [node name="StatusStrip" type="VBoxContainer" parent="Root/Dock/Shell/Padding/Content/TopRow/HeaderCluster/StartupRack/StartupPadding/StartupStack" unique_id=1635626705]
 layout_mode = 2
@@ -266,7 +328,7 @@ theme_override_constants/separation = 4
 [node name="BatteryGauge" type="TextureRect" parent="Root/Dock/Shell/Padding/Content/TopRow/PowerColumn/TelemetrySection/TelemetryPadding/TelemetryContent/TelemetryRow/BatteryCard" unique_id=1977348754]
 custom_minimum_size = Vector2(84, 44)
 layout_mode = 2
-texture = SubResource("AtlasTexture_gauge")
+texture = SubResource("AtlasTexture_battery_gauge")
 stretch_mode = 5
 
 [node name="BatteryLights" type="HBoxContainer" parent="Root/Dock/Shell/Padding/Content/TopRow/PowerColumn/TelemetrySection/TelemetryPadding/TelemetryContent/TelemetryRow/BatteryCard" unique_id=43146669]
@@ -312,7 +374,7 @@ theme_override_constants/separation = 4
 [node name="LoadGauge" type="TextureRect" parent="Root/Dock/Shell/Padding/Content/TopRow/PowerColumn/TelemetrySection/TelemetryPadding/TelemetryContent/TelemetryRow/LoadCard" unique_id=1031416976]
 custom_minimum_size = Vector2(84, 44)
 layout_mode = 2
-texture = SubResource("AtlasTexture_gauge")
+texture = SubResource("AtlasTexture_load_gauge")
 stretch_mode = 5
 
 [node name="LoadLights" type="HBoxContainer" parent="Root/Dock/Shell/Padding/Content/TopRow/PowerColumn/TelemetrySection/TelemetryPadding/TelemetryContent/TelemetryRow/LoadCard" unique_id=1193225883]
@@ -412,42 +474,48 @@ columns = 2
 [node name="OneThirdButton" type="TextureButton" parent="Root/Dock/Shell/Padding/Content/ControlsSection/ControlsPadding/ControlsRow/ThrottleColumn/ThrottleGrid" unique_id=1418321215]
 custom_minimum_size = Vector2(52, 52)
 layout_mode = 2
-texture_normal = SubResource("AtlasTexture_knob")
+texture_normal = SubResource("AtlasTexture_throttle_knob_1")
+texture_pressed = SubResource("AtlasTexture_throttle_pressed_1")
 ignore_texture_size = true
 stretch_mode = 5
 
 [node name="TwoThirdButton" type="TextureButton" parent="Root/Dock/Shell/Padding/Content/ControlsSection/ControlsPadding/ControlsRow/ThrottleColumn/ThrottleGrid" unique_id=1509730882]
 custom_minimum_size = Vector2(52, 52)
 layout_mode = 2
-texture_normal = SubResource("AtlasTexture_knob")
+texture_normal = SubResource("AtlasTexture_throttle_knob_2")
+texture_pressed = SubResource("AtlasTexture_throttle_pressed_2")
 ignore_texture_size = true
 stretch_mode = 5
 
 [node name="FullButton" type="TextureButton" parent="Root/Dock/Shell/Padding/Content/ControlsSection/ControlsPadding/ControlsRow/ThrottleColumn/ThrottleGrid" unique_id=1915359959]
 custom_minimum_size = Vector2(52, 52)
 layout_mode = 2
-texture_normal = SubResource("AtlasTexture_knob")
+texture_normal = SubResource("AtlasTexture_throttle_knob_3")
+texture_pressed = SubResource("AtlasTexture_throttle_pressed_3")
 ignore_texture_size = true
 stretch_mode = 5
 
 [node name="FlankButton" type="TextureButton" parent="Root/Dock/Shell/Padding/Content/ControlsSection/ControlsPadding/ControlsRow/ThrottleColumn/ThrottleGrid" unique_id=1196269560]
-custom_minimum_size = Vector2(52, 44)
+custom_minimum_size = Vector2(52, 52)
 layout_mode = 2
-texture_normal = SubResource("AtlasTexture_gauge")
+texture_normal = SubResource("AtlasTexture_throttle_knob_4")
+texture_pressed = SubResource("AtlasTexture_throttle_pressed_4")
 ignore_texture_size = true
 stretch_mode = 5
 
 [node name="ReverseButton" type="TextureButton" parent="Root/Dock/Shell/Padding/Content/ControlsSection/ControlsPadding/ControlsRow/ThrottleColumn/ThrottleGrid" unique_id=107818697]
-custom_minimum_size = Vector2(52, 28)
+custom_minimum_size = Vector2(52, 52)
 layout_mode = 2
-texture_normal = SubResource("AtlasTexture_switch")
+texture_normal = SubResource("AtlasTexture_throttle_knob_5")
+texture_pressed = SubResource("AtlasTexture_throttle_pressed_5")
 ignore_texture_size = true
 stretch_mode = 5
 
 [node name="StopButton" type="TextureButton" parent="Root/Dock/Shell/Padding/Content/ControlsSection/ControlsPadding/ControlsRow/ThrottleColumn/ThrottleGrid" unique_id=595034579]
-custom_minimum_size = Vector2(52, 28)
+custom_minimum_size = Vector2(52, 52)
 layout_mode = 2
-texture_normal = SubResource("AtlasTexture_switch")
+texture_normal = SubResource("AtlasTexture_throttle_knob_6")
+texture_pressed = SubResource("AtlasTexture_throttle_pressed_6")
 ignore_texture_size = true
 stretch_mode = 5
 
@@ -534,10 +602,10 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 24.0
+offset_left = 153.0
 offset_top = 20.0
-offset_right = -28.0
-offset_bottom = -18.0
+offset_right = -153.0
+offset_bottom = -27.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
