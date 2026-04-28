@@ -224,6 +224,13 @@ func get_panel_state() -> Dictionary:
 	var vertical_level: float = clamp(abs(current_vertical_multiplier) / 0.65, 0.0, 1.0)
 	var speed_ratio: float = clamp(linear_velocity.length() / max_speed, 0.0, 1.0)
 	var current_draw: float = 0.03
+	var sonar_scan_degrees := 0.0
+
+	if sonar != null:
+		if sonar.has_method("get_scan_angle_degrees"):
+			sonar_scan_degrees = float(sonar.call("get_scan_angle_degrees"))
+		else:
+			sonar_scan_degrees = sonar.rotation_degrees
 
 	if generator_online:
 		current_draw += 0.12
@@ -247,6 +254,7 @@ func get_panel_state() -> Dictionary:
 		"diagnostics_complete": diagnostics_complete,
 		"controls_online": controls_online,
 		"sonar_online": controls_online and sonar_enabled,
+		"sonar_scan_degrees": sonar_scan_degrees,
 		"command_locked": command_locked,
 		"battery_charge": battery_charge,
 		"current_draw": clamp(current_draw, 0.0, 1.0),

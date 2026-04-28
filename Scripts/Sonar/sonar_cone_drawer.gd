@@ -27,10 +27,10 @@ func _draw() -> void:
 	if emit_flash_duration > 0.0:
 		flash_t = emit_flash_time / emit_flash_duration
 
-	var flash_strength : float = 1.0 + max(0.0, emit_flash_boost - 1.0) * flash_t
+	# var flash_strength : float = 1.0 + max(0.0, emit_flash_boost - 1.0) * flash_t
 
-	draw_fade_line(-cone_angle * 0.5, flash_strength)
-	draw_fade_line(cone_angle * 0.5, flash_strength)
+	# draw_fade_line(-cone_angle * 0.5, flash_strength)
+	# draw_fade_line(cone_angle * 0.5, flash_strength)
 
 	if flash_t > 0.0:
 		draw_emit_pulse(flash_t)

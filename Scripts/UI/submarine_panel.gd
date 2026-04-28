@@ -7,6 +7,7 @@ const CHROME_DIM := Color(0.38, 0.43, 0.41, 0.95)
 const CONTROL_ACTIVE := Color(0.9, 1.0, 0.9, 1.0)
 const CONTROL_IDLE := Color(0.72, 0.78, 0.74, 0.92)
 const CONTROL_DISABLED := Color(0.27, 0.31, 0.3, 0.92)
+const SONAR_ANGLE_TEXTURE_OFFSET := 180
 const SOUND_PANEL_TAP := preload("res://Assets/Audio/Sub/Ship/hull_1.wav")
 const SOUND_PANEL_CLUNK := preload("res://Assets/Audio/Sub/Ship/hull_2.wav")
 const SOUND_PANEL_HEAVY := preload("res://Assets/Audio/Sub/Ship/hull_3.wav")
@@ -73,6 +74,7 @@ var panel_audio: AudioStreamPlayer
 @onready var hold_button: TextureButton = $Root/Dock/Shell/Padding/Content/ControlsSection/ControlsPadding/ControlsRow/DepthColumn/DepthGrid/HoldButton
 @onready var descend_button: TextureButton = $Root/Dock/Shell/Padding/Content/ControlsSection/ControlsPadding/ControlsRow/DepthColumn/DepthGrid/DescendButton
 @onready var sonar_button: TextureButton = $Root/Dock/Shell/Padding/Content/ControlsSection/ControlsPadding/ControlsRow/DepthColumn/DepthGrid/SonarButton
+@onready var sonar_angle_button: TextureButton = $Root/Dock/Shell/Padding/Content/ControlsSection/ControlsPadding/ControlsRow/DepthColumn/DepthGrid/SonarAngleButton
 
 var thrust_buttons: Dictionary
 var depth_buttons: Dictionary
@@ -92,13 +94,6 @@ var thrust_button_angles := {
 	KEY_R: 150.0,
 	KEY_S: 0.0
 }
-var depth_button_offsets := {
-	KEY_X: Vector2(0, -6),
-	KEY_V: Vector2(0, 0),
-	KEY_Y: Vector2(0, 6)
-}
-
-
 func _ready() -> void:
 	$Root.mouse_filter = Control.MOUSE_FILTER_PASS
 	thrust_buttons = {
@@ -115,10 +110,10 @@ func _ready() -> void:
 		KEY_Y: descend_button
 	}
 	startup_buttons = [generator_button, cooling_button, reactor_button, diagnostics_button]
-	helm_buttons = [one_third_button, two_third_button, full_button, flank_button, reverse_button, stop_button, ascend_button, hold_button, descend_button, sonar_button]
+	helm_buttons = [one_third_button, two_third_button, full_button, flank_button, reverse_button, stop_button, ascend_button, hold_button, descend_button, sonar_button, sonar_angle_button]
 	for button in startup_buttons + helm_buttons:
 		button.mouse_filter = Control.MOUSE_FILTER_STOP
-		button.pivot_offset = button.custom_minimum_size * 0.5
+		button.pivot_offset = _get_button_pivot(button)
 		press_feedback[button] = 0.0
 
 	generator_button.pressed.connect(_on_generator_pressed)
@@ -143,6 +138,7 @@ func _ready() -> void:
 	for button in [one_third_button, two_third_button, full_button, flank_button, reverse_button, stop_button, ascend_button, hold_button, descend_button]:
 		button.pressed.connect(_mark_button_press.bind(button, "tap"))
 	sonar_button.pressed.connect(_mark_button_press.bind(sonar_button, "ready"))
+	sonar_angle_button.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 	panel_audio = AudioStreamPlayer.new()
 	panel_audio.bus = "Master"
@@ -160,7 +156,7 @@ func _process(delta: float) -> void:
 	_decay_press_feedback(delta)
 
 	if player == null or not player.has_method("get_panel_state"):
-		_animate_controls(KEY_NONE, KEY_NONE, false, false)
+		_animate_controls(KEY_NONE, KEY_NONE, false, 0.0, false)
 		return
 
 	var state: Dictionary = player.call("get_panel_state") as Dictionary
@@ -275,6 +271,7 @@ func _apply_player_state(state: Dictionary) -> void:
 	var current_draw: float = float(state.get("current_draw", 0.0))
 	var speed_ratio: float = float(state.get("speed_ratio", 0.0))
 	var sonar_online: bool = bool(state.get("sonar_online", false))
+	var sonar_scan_degrees: float = float(state.get("sonar_scan_degrees", 0.0))
 	var command_busy: bool = bool(state.get("command_locked", false))
 	var controls_ready: bool = bool(state.get("controls_online", false))
 	var active_thrust_key: Key = int(state.get("active_thrust_key", KEY_NONE))
@@ -305,7 +302,8 @@ func _apply_player_state(state: Dictionary) -> void:
 		_set_control_state(button, keycode == active_depth_key or is_pending, controls_ready)
 
 	_set_control_state(sonar_button, sonar_online or (command_busy and last_command_key == KEY_I), controls_ready)
-	_animate_controls(active_thrust_key, active_depth_key, sonar_online, command_busy)
+	_set_control_state(sonar_angle_button, sonar_online, controls_ready)
+	_animate_controls(active_thrust_key, active_depth_key, sonar_online, sonar_scan_degrees, command_busy)
 	_animate_startup_feedback()
 
 	if status_hold_time > 0.0:
@@ -433,7 +431,7 @@ func _apply_button_flicker(button: TextureButton, is_pending: bool) -> void:
 	button.modulate = Color(pulse, pulse, pulse * 0.92, 1.0)
 
 
-func _animate_controls(active_thrust_key: Key, active_depth_key: Key, sonar_online: bool, command_busy: bool) -> void:
+func _animate_controls(active_thrust_key: Key, active_depth_key: Key, sonar_online: bool, sonar_scan_degrees: float, command_busy: bool) -> void:
 	for keycode in thrust_buttons.keys():
 		var button: TextureButton = thrust_buttons[keycode] as TextureButton
 		var target_angle: float = 0.0
@@ -445,11 +443,6 @@ func _animate_controls(active_thrust_key: Key, active_depth_key: Key, sonar_onli
 
 	for keycode in depth_buttons.keys():
 		var button: TextureButton = depth_buttons[keycode] as TextureButton
-		var target_position: Vector2 = Vector2.ZERO
-		if keycode == active_depth_key:
-			target_position = depth_button_offsets.get(keycode, Vector2.ZERO)
-		target_position += Vector2(0, _get_press_amount(button) * 3.0)
-		button.position = button.position.lerp(target_position, 0.2)
 		var press_scale: float = 1.0 - _get_press_amount(button) * 0.06
 		button.scale = button.scale.lerp(Vector2.ONE * (1.03 if keycode == active_depth_key else 1.0) * press_scale, 0.18)
 
@@ -461,9 +454,26 @@ func _animate_controls(active_thrust_key: Key, active_depth_key: Key, sonar_onli
 	sonar_scale *= 1.0 - _get_press_amount(sonar_button) * 0.08
 	sonar_button.scale = sonar_button.scale.lerp(Vector2.ONE * sonar_scale, 0.18)
 
+	var target_sonar_angle := SONAR_ANGLE_TEXTURE_OFFSET
+	if sonar_online:
+		target_sonar_angle += sonar_scan_degrees
+	sonar_angle_button.rotation_degrees = lerp_angle(sonar_angle_button.rotation_degrees, target_sonar_angle, 0.18)
+	var sonar_angle_scale := 0.96
+	if sonar_online:
+		sonar_angle_scale = 1.02 + sin(panel_anim_time * 4.0) * 0.02
+	sonar_angle_button.scale = sonar_angle_button.scale.lerp(Vector2.ONE * sonar_angle_scale, 0.18)
+
 	for button in startup_buttons:
 		var press_scale: float = 1.0 - _get_press_amount(button) * 0.05
 		button.scale = button.scale.lerp(Vector2.ONE * press_scale, 0.18)
+
+
+func _get_button_pivot(button: TextureButton) -> Vector2:
+	if button == null:
+		return Vector2.ZERO
+	if button.custom_minimum_size != Vector2.ZERO:
+		return button.custom_minimum_size * 0.5
+	return button.size * 0.5
 
 
 func _mark_button_press(button: TextureButton, sound_kind: String) -> void:

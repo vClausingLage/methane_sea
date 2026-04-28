@@ -84,3 +84,7 @@ func emit_sonar() -> void:
 func update_cone_visual() -> void:
 	if cone_drawer and cone_drawer.has_method("set_scan_visual"):
 		cone_drawer.call("set_scan_visual", cone_angle, cone_visual_distance)
+
+
+func get_scan_angle_degrees() -> float:
+	return rotation_degrees

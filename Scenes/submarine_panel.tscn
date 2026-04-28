@@ -34,19 +34,23 @@ corner_radius_bottom_left = 4
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_generator_switch"]
 atlas = ExtResource("2_xc6gp")
-region = Rect2(164, 34, 33, 60.52279)
+region = Rect2(93.730125, 119.225174, 12.745232, 14.367355)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_w8fb4"]
+atlas = ExtResource("2_xc6gp")
+region = Rect2(147.55565, 119.41608, 9.743256, 12.11322)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_cooling_switch"]
 atlas = ExtResource("2_xc6gp")
-region = Rect2(164, 34, 33, 60.52279)
+region = Rect2(93.774216, 119.86728, 12.417999, 13.156372)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_reactor_gauge"]
 atlas = ExtResource("2_xc6gp")
-region = Rect2(257.2568, 3.366703, 31.573425, 30.414757)
+region = Rect2(93.82296, 119.94457, 12.2642975, 13.157722)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_diagnostics_monitor"]
 atlas = ExtResource("2_xc6gp")
-region = Rect2(91.241776, 220.9522, 87.13278, 55.518204)
+region = Rect2(93.77422, 119.927536, 12.28376, 13.089249)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_lamp"]
 atlas = ExtResource("2_xc6gp")
@@ -62,31 +66,31 @@ region = Rect2(257.2568, 3.366703, 31.573425, 30.414757)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_throttle_knob_1"]
 atlas = ExtResource("2_xc6gp")
-region = Rect2(203.33127, 49.93683, 37.66873, 36.961174)
+region = Rect2(274.78333, 187.91089, 14.276489, 16.365723)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_throttle_pressed_1"]
 atlas = ExtResource("2_xc6gp")
-region = Rect2(257.2568, 3.366703, 31.573425, 30.414757)
+region = Rect2(274.91135, 169.72057, 14.250153, 16.412247)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_throttle_knob_2"]
 atlas = ExtResource("2_xc6gp")
-region = Rect2(203.33127, 49.93683, 37.66873, 36.961174)
+region = Rect2(274.7849, 187.71217, 14.250153, 16.510529)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_throttle_pressed_2"]
 atlas = ExtResource("2_xc6gp")
-region = Rect2(257.2568, 3.366703, 31.573425, 30.414757)
+region = Rect2(274.81284, 169.69359, 14.151886, 16.31398)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_throttle_knob_3"]
 atlas = ExtResource("2_xc6gp")
-region = Rect2(203.33127, 49.93683, 37.66873, 36.961174)
+region = Rect2(274.87515, 187.85362, 14.151886, 16.117416)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_throttle_pressed_3"]
 atlas = ExtResource("2_xc6gp")
-region = Rect2(257.2568, 3.366703, 31.573425, 30.414757)
+region = Rect2(274.96454, 169.80481, 14.250183, 16.412247)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_throttle_knob_4"]
 atlas = ExtResource("2_xc6gp")
-region = Rect2(203.33127, 49.93683, 37.66873, 36.961174)
+region = Rect2(274.7551, 187.7308, 14.250153, 16.215698)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_throttle_pressed_4"]
 atlas = ExtResource("2_xc6gp")
@@ -110,11 +114,15 @@ region = Rect2(257.2568, 3.366703, 31.573425, 30.414757)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_slider"]
 atlas = ExtResource("2_xc6gp")
-region = Rect2(173, 108, 62, 52)
+region = Rect2(68.82644, 17.815573, 14.348442, 16.608812)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_sonar"]
 atlas = ExtResource("2_xc6gp")
-region = Rect2(259, 77, 58, 19)
+region = Rect2(47.94355, 189.30319, 9.971397, 12.503815)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_vuea1"]
+atlas = ExtResource("2_xc6gp")
+region = Rect2(263.33984, 93.71968, 21.367249, 24.057968)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_monitor"]
 atlas = ExtResource("2_xc6gp")
@@ -203,14 +211,15 @@ text = "Startup Bus"
 
 [node name="StartupGrid" type="GridContainer" parent="Root/Dock/Shell/Padding/Content/TopRow/HeaderCluster/StartupRack/StartupPadding/StartupStack" unique_id=1423398740]
 layout_mode = 2
-columns = 2
 theme_override_constants/h_separation = 6
 theme_override_constants/v_separation = 6
+columns = 2
 
 [node name="GeneratorButton" type="TextureButton" parent="Root/Dock/Shell/Padding/Content/TopRow/HeaderCluster/StartupRack/StartupPadding/StartupStack/StartupGrid" unique_id=2005894191]
 custom_minimum_size = Vector2(52, 38)
 layout_mode = 2
 texture_normal = SubResource("AtlasTexture_generator_switch")
+texture_pressed = SubResource("AtlasTexture_w8fb4")
 ignore_texture_size = true
 stretch_mode = 0
 
@@ -545,21 +554,18 @@ columns = 2
 custom_minimum_size = Vector2(58, 48)
 layout_mode = 2
 texture_normal = SubResource("AtlasTexture_slider")
-ignore_texture_size = true
 stretch_mode = 5
 
 [node name="HoldButton" type="TextureButton" parent="Root/Dock/Shell/Padding/Content/ControlsSection/ControlsPadding/ControlsRow/DepthColumn/DepthGrid" unique_id=123970689]
 custom_minimum_size = Vector2(58, 48)
 layout_mode = 2
 texture_normal = SubResource("AtlasTexture_slider")
-ignore_texture_size = true
 stretch_mode = 5
 
 [node name="DescendButton" type="TextureButton" parent="Root/Dock/Shell/Padding/Content/ControlsSection/ControlsPadding/ControlsRow/DepthColumn/DepthGrid" unique_id=1206601816]
 custom_minimum_size = Vector2(58, 48)
 layout_mode = 2
 texture_normal = SubResource("AtlasTexture_slider")
-ignore_texture_size = true
 stretch_mode = 5
 
 [node name="SonarButton" type="TextureButton" parent="Root/Dock/Shell/Padding/Content/ControlsSection/ControlsPadding/ControlsRow/DepthColumn/DepthGrid" unique_id=691028560]
@@ -568,6 +574,11 @@ layout_mode = 2
 texture_normal = SubResource("AtlasTexture_sonar")
 ignore_texture_size = true
 stretch_mode = 5
+
+[node name="SonarAngleButton" type="TextureButton" parent="Root/Dock/Shell/Padding/Content/ControlsSection/ControlsPadding/ControlsRow/DepthColumn/DepthGrid" unique_id=595255567]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+texture_normal = SubResource("AtlasTexture_vuea1")
 
 [node name="DepthNames" type="Label" parent="Root/Dock/Shell/Padding/Content/ControlsSection/ControlsPadding/ControlsRow/DepthColumn" unique_id=1027064827]
 custom_minimum_size = Vector2(0, 52)
@@ -602,10 +613,10 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 153.0
-offset_top = 20.0
-offset_right = -153.0
-offset_bottom = -27.0
+offset_left = 129.0
+offset_top = 15.0
+offset_right = -177.0
+offset_bottom = -10.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2

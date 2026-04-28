@@ -156,7 +156,6 @@ texture = ExtResource("4_mc2jv")
 
 [node name="camera" type="Camera2D" parent="Player" unique_id=271887535]
 z_index = 1
-offset = Vector2(0, 0)
 position_smoothing_enabled = true
 rotation_smoothing_enabled = true
 
