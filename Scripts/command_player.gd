@@ -5,55 +5,72 @@ signal command_pending_changed(is_pending: bool)
 signal command_resolved(thrust_multiplier: float, vertical_multiplier: float, motor_stream: int)
 signal sonar_toggle_requested
 
-var flank_thrust_multiplier := 1.15
-var command_delay_min := .9
-var command_delay_max := 2
 var command_locked := false
+
+const ORDER_RESPONSE_SOUNDS: Array[AudioStream] = [
+	preload("res://Assets/Audio/Sub/Comms/Orders/J_aye.mp3"),
+	preload("res://Assets/Audio/Sub/Comms/Orders/J_aye_aye_maam.mp3"),
+	preload("res://Assets/Audio/Sub/Comms/Orders/J_aye_captain.mp3"),
+	preload("res://Assets/Audio/Sub/Comms/Orders/J_check.mp3"),
+	preload("res://Assets/Audio/Sub/Comms/Orders/J_ok_got_it.mp3"),
+	preload("res://Assets/Audio/Sub/Comms/Orders/J_on_it.mp3"),
+	preload("res://Assets/Audio/Sub/Comms/Orders/J_yep.mp3"),
+	preload("res://Assets/Audio/Sub/Comms/Orders/J_yes_maam.mp3")
+]
+const SONAR_ENABLE_SOUNDS: Array[AudioStream] = [
+	preload("res://Assets/Audio/Sub/Comms/Sonar/T_sonar_activate_1.mp3"),
+	preload("res://Assets/Audio/Sub/Comms/Sonar/T_sonar_activate_2.mp3")
+]
+const SONAR_DISABLE_SOUNDS: Array[AudioStream] = [
+	preload("res://Assets/Audio/Sub/Comms/Sonar/T_sonar_off_1.mp3"),
+	preload("res://Assets/Audio/Sub/Comms/Sonar/T_sonar_off_2.mp3")
+]
+var flank_thrust_multiplier := 1.15
 
 const COMMAND_CONFIG := {
 	KEY_1: {
 		"multiplier": 1.0 / 3.0,
-		"sound": preload("res://Assets/Audio/Sub/Comms/one_third_ahead.mp3"),
+		"sound": preload("res://Assets/Audio/Sub/Comms/Control/T_forward_one_third.mp3"),
 		"motor_stream": 1
 	},
 	KEY_2: {
 		"multiplier": 2.0 / 3.0,
-		"sound": preload("res://Assets/Audio/Sub/Comms/two_third_ahead.mp3"),
+		"sound": preload("res://Assets/Audio/Sub/Comms/Control/T_forwar_two_third.mp3"),
 		"motor_stream": 2
 	},
 	KEY_3: {
 		"multiplier": 1.0,
-		"sound": preload("res://Assets/Audio/Sub/Comms/full_forward.mp3"),
+		"sound": preload("res://Assets/Audio/Sub/Comms/Control/T_full_forward.mp3"),
 		"motor_stream": 3
 	},
 	KEY_4: {
 		"multiplier": 1.15,
-		"sound": preload("res://Assets/Audio/Sub/Comms/go_flank_speed.mp3"),
+		"sound": preload("res://Assets/Audio/Sub/Comms/Control/T_flank_speed.mp3"),
 		"motor_stream": 4
 	},
 	KEY_R: {
 		"multiplier": -2.0 / 3.0,
-		"sound": preload("res://Assets/Audio/Sub/Comms/reverse.mp3"),
+		"sound": preload("res://Assets/Audio/Sub/Comms/Control/T_reverse.mp3"),
 		"motor_stream": 1
 	},
 	KEY_S: {
 		"multiplier": 0.0,
-		"sound": preload("res://Assets/Audio/Sub/Comms/full_stop.mp3"),
+		"sound": preload("res://Assets/Audio/Sub/Comms/Control/T_full_stop.mp3"),
 		"motor_stream": 0
 	},
 	KEY_X: {
 		"vertical_multiplier": -0.65,
-		"sound": preload("res://Assets/Audio/Sub/Comms/ascend.mp3"),
+		"sound": preload("res://Assets/Audio/Sub/Comms/Control/T_ascend.mp3"),
 		"motor_stream": -1
 	},
 	KEY_Y: {
 		"vertical_multiplier": 0.65,
-		"sound": preload("res://Assets/Audio/Sub/Comms/descend.mp3"),
+		"sound": preload("res://Assets/Audio/Sub/Comms/Control/T_descend.mp3"),
 		"motor_stream": -1
 	},
 	KEY_V: {
 		"vertical_multiplier": 0.0,
-		"sound": preload("res://Assets/Audio/Sub/Comms/keep_depth.mp3"),
+		"sound": preload("res://Assets/Audio/Sub/Comms/Control/T_stay_level.mp3"),
 		"motor_stream": -1
 	},
 	KEY_I: {
@@ -63,7 +80,7 @@ const COMMAND_CONFIG := {
 }
 
 
-func issue_key_command(keycode: Key) -> bool:
+func issue_key_command(keycode: Key, context: Dictionary = {}) -> bool:
 	if command_locked:
 		return false
 
@@ -72,7 +89,7 @@ func issue_key_command(keycode: Key) -> bool:
 		return false
 
 	if command_data.get("type", "thrust") == "sonar_toggle":
-		_issue_sonar_toggle_command(command_data["sound"] as AudioStream)
+		_issue_sonar_toggle_command(bool(context.get("sonar_enabled", false)))
 		return true
 
 	var multiplier := float(command_data.get("multiplier", NAN))
@@ -94,26 +111,34 @@ func is_command_locked() -> bool:
 
 
 func _issue_command(multiplier: float, vertical_multiplier: float, sound: AudioStream, motor_stream: int) -> void:
+	await _run_command_pipeline(
+		sound,
+		_get_random_order_response(),
+		func() -> void:
+			command_resolved.emit(multiplier, vertical_multiplier, motor_stream)
+	)
+
+
+func _issue_sonar_toggle_command(sonar_enabled: bool) -> void:
+	var command_sound := _get_random_sonar_sound(sonar_enabled)
+	await _run_command_pipeline(
+		command_sound,
+		_get_random_order_response(),
+		func() -> void:
+			sonar_toggle_requested.emit()
+	)
+
+
+func _run_command_pipeline(command_sound: AudioStream, response_sound: AudioStream, execute_action: Callable) -> void:
 	command_locked = true
 	command_pending_changed.emit(true)
-	_play_command_sound(sound)
 
-	var delay := randf_range(command_delay_min, command_delay_max)
-	await get_tree().create_timer(delay).timeout
+	await _play_voice_line_and_wait(command_sound)
+	await _play_voice_line_and_wait(response_sound)
 
-	command_resolved.emit(multiplier, vertical_multiplier, motor_stream)
-	_release_lock()
+	if execute_action.is_valid():
+		execute_action.call()
 
-
-func _issue_sonar_toggle_command(sound: AudioStream) -> void:
-	command_locked = true
-	command_pending_changed.emit(true)
-	_play_command_sound(sound)
-
-	var delay := randf_range(command_delay_min, command_delay_max)
-	await get_tree().create_timer(delay).timeout
-
-	sonar_toggle_requested.emit()
 	_release_lock()
 
 
@@ -124,6 +149,34 @@ func _play_command_sound(sound: AudioStream) -> void:
 	stop()
 	stream = sound
 	play()
+
+
+func _play_voice_line_and_wait(sound: AudioStream) -> void:
+	if sound == null:
+		return
+
+	_play_command_sound(sound)
+	await finished
+
+
+func play_voice_line(sound: AudioStream) -> void:
+	_play_command_sound(sound)
+
+
+func _get_random_order_response() -> AudioStream:
+	return _pick_random_stream(ORDER_RESPONSE_SOUNDS)
+
+
+func _get_random_sonar_sound(sonar_enabled: bool) -> AudioStream:
+	if sonar_enabled:
+		return _pick_random_stream(SONAR_DISABLE_SOUNDS)
+	return _pick_random_stream(SONAR_ENABLE_SOUNDS)
+
+
+func _pick_random_stream(streams: Array[AudioStream]) -> AudioStream:
+	if streams.is_empty():
+		return null
+	return streams[randi() % streams.size()]
 
 
 func _release_lock() -> void:

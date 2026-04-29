@@ -12,6 +12,24 @@ const SOUND_PANEL_TAP := preload("res://Assets/Audio/Sub/Ship/hull_1.wav")
 const SOUND_PANEL_CLUNK := preload("res://Assets/Audio/Sub/Ship/hull_2.wav")
 const SOUND_PANEL_HEAVY := preload("res://Assets/Audio/Sub/Ship/hull_3.wav")
 const SOUND_PANEL_READY := preload("res://Assets/Audio/Sub/Comms/sonar_contact.mp3")
+const STARTUP_COMMS := {
+	"generator": {
+		"start": preload("res://Assets/Audio/Sub/Comms/Startup/T_start_generator.mp3"),
+		"complete": preload("res://Assets/Audio/Sub/Comms/Startup/J_check_generator.mp3")
+	},
+	"cooling": {
+		"start": preload("res://Assets/Audio/Sub/Comms/Startup/T_start_cooling_pumps.mp3"),
+		"complete": preload("res://Assets/Audio/Sub/Comms/Startup/J_check_cooling_pumps.mp3")
+	},
+	"reactor": {
+		"start": preload("res://Assets/Audio/Sub/Comms/Startup/T_start_reactor.mp3"),
+		"complete": preload("res://Assets/Audio/Sub/Comms/Startup/J_check_reactor.mp3")
+	},
+	"diagnostics": {
+		"start": preload("res://Assets/Audio/Sub/Comms/Startup/T_start_diagnosis.mp3"),
+		"complete": preload("res://Assets/Audio/Sub/Comms/Startup/J_diagnosis_complete_green.mp3")
+	}
+}
 
 @export_node_path("Node") var player_path: NodePath = ^"../Player"
 
@@ -21,6 +39,7 @@ var reactor_online := false
 var diagnostics_complete := false
 var status_hold_time := 0.0
 var startup_pending_step := ""
+var startup_announcing_step := ""
 var startup_pending_remaining := 0.0
 var startup_pending_duration := 0.0
 var panel_anim_time := 0.0
@@ -164,17 +183,17 @@ func _process(delta: float) -> void:
 
 
 func _on_generator_pressed() -> void:
-	if startup_pending_step != "":
+	if _is_startup_busy():
 		_set_status("Startup bus busy. Await current relay action.")
 		return
 	if generator_online:
 		_set_status("Generator bus is already online.")
 		return
-	_begin_startup_step("generator", "Closing generator relay...")
+	_queue_startup_step("generator", "Closing generator relay...")
 
 
 func _on_cooling_pressed() -> void:
-	if startup_pending_step != "":
+	if _is_startup_busy():
 		_set_status("Startup bus busy. Await current relay action.")
 		return
 	if not generator_online:
@@ -183,11 +202,11 @@ func _on_cooling_pressed() -> void:
 	if cooling_online:
 		_set_status("Cooling loop is already stable.")
 		return
-	_begin_startup_step("cooling", "Spinning coolant pumps...")
+	_queue_startup_step("cooling", "Spinning coolant pumps...")
 
 
 func _on_reactor_pressed() -> void:
-	if startup_pending_step != "":
+	if _is_startup_busy():
 		_set_status("Startup bus busy. Await current relay action.")
 		return
 	if not cooling_online:
@@ -196,11 +215,11 @@ func _on_reactor_pressed() -> void:
 	if reactor_online:
 		_set_status("Reactor is already online.")
 		return
-	_begin_startup_step("reactor", "Reactor startup sequence running...")
+	_queue_startup_step("reactor", "Reactor startup sequence running...")
 
 
 func _on_diagnostics_pressed() -> void:
-	if startup_pending_step != "":
+	if _is_startup_busy():
 		_set_status("Startup bus busy. Await current relay action.")
 		return
 	if not reactor_online:
@@ -209,7 +228,7 @@ func _on_diagnostics_pressed() -> void:
 	if diagnostics_complete:
 		_set_status("Diagnostics already passed.")
 		return
-	_begin_startup_step("diagnostics", "Running startup diagnostics...")
+	_queue_startup_step("diagnostics", "Running startup diagnostics...")
 
 
 func _issue_command(keycode: Key, message: String) -> void:
@@ -230,13 +249,14 @@ func _issue_command(keycode: Key, message: String) -> void:
 
 
 func _refresh_ui() -> void:
-	_set_startup_button_state(generator_button, generator_online, startup_pending_step in ["", "generator"] and not generator_online)
-	_set_startup_button_state(cooling_button, cooling_online, startup_pending_step in ["", "cooling"] and generator_online and not cooling_online)
-	_set_startup_button_state(reactor_button, reactor_online, startup_pending_step in ["", "reactor"] and cooling_online and not reactor_online)
-	_set_startup_button_state(diagnostics_button, diagnostics_complete, startup_pending_step in ["", "diagnostics"] and reactor_online and not diagnostics_complete)
+	var active_startup_step := _get_active_startup_step()
+	_set_startup_button_state(generator_button, generator_online, active_startup_step in ["", "generator"] and not generator_online)
+	_set_startup_button_state(cooling_button, cooling_online, active_startup_step in ["", "cooling"] and generator_online and not cooling_online)
+	_set_startup_button_state(reactor_button, reactor_online, active_startup_step in ["", "reactor"] and cooling_online and not reactor_online)
+	_set_startup_button_state(diagnostics_button, diagnostics_complete, active_startup_step in ["", "diagnostics"] and reactor_online and not diagnostics_complete)
 
 	for button in helm_buttons:
-		_set_control_state(button, false, diagnostics_complete and startup_pending_step == "")
+		_set_control_state(button, false, diagnostics_complete and not _is_startup_busy())
 
 	_set_lamp(lamp_generator, generator_online)
 	_set_lamp(lamp_cooling, cooling_online)
@@ -362,7 +382,7 @@ func _set_status(message: String) -> void:
 
 
 func _begin_startup_step(step: String, message: String) -> void:
-	if startup_pending_step != "":
+	if _is_startup_busy():
 		return
 
 	startup_pending_step = step
@@ -370,6 +390,25 @@ func _begin_startup_step(step: String, message: String) -> void:
 	startup_pending_remaining = startup_pending_duration
 	_set_status(message)
 	_refresh_ui()
+
+
+func _queue_startup_step(step: String, message: String) -> void:
+	if _is_startup_busy():
+		return
+
+	startup_announcing_step = step
+	_set_status(message)
+	_refresh_ui()
+
+	var speech_length := _play_startup_comms(step, "start")
+	if speech_length > 0.0:
+		await get_tree().create_timer(speech_length).timeout
+
+	if startup_announcing_step != step or startup_pending_step != "":
+		return
+
+	startup_announcing_step = ""
+	_begin_startup_step(step, message)
 
 
 func _process_startup_transition(delta: float) -> void:
@@ -384,18 +423,22 @@ func _process_startup_transition(delta: float) -> void:
 		"generator":
 			generator_online = true
 			_play_panel_sound("clunk")
+			_play_startup_comms(startup_pending_step, "complete")
 			_set_status("Generator bus online. Bring coolant pumps up.")
 		"cooling":
 			cooling_online = true
 			_play_panel_sound("clunk")
+			_play_startup_comms(startup_pending_step, "complete")
 			_set_status("Coolant loop stable. Reactor can be started.")
 		"reactor":
 			reactor_online = true
 			_play_panel_sound("heavy")
+			_play_startup_comms(startup_pending_step, "complete")
 			_set_status("Reactor online. Run system diagnostics.")
 		"diagnostics":
 			diagnostics_complete = true
 			_play_panel_sound("ready")
+			_play_startup_comms(startup_pending_step, "complete")
 			_set_status("Diagnostics passed. Helm controls unlocked.")
 
 	startup_pending_step = ""
@@ -408,20 +451,21 @@ func _process_startup_transition(delta: float) -> void:
 func _animate_startup_feedback() -> void:
 	var flicker_phase: float = sin(panel_anim_time * 18.0) * 0.5 + 0.5
 	var pending_intensity: bool = flicker_phase > 0.35
+	var active_startup_step := _get_active_startup_step()
 
-	if startup_pending_step == "generator":
+	if active_startup_step == "generator":
 		_set_lamp(lamp_generator, pending_intensity)
-	elif startup_pending_step == "cooling":
+	elif active_startup_step == "cooling":
 		_set_lamp(lamp_cooling, pending_intensity)
-	elif startup_pending_step == "reactor":
+	elif active_startup_step == "reactor":
 		_set_lamp(lamp_reactor, pending_intensity)
-	elif startup_pending_step == "diagnostics":
+	elif active_startup_step == "diagnostics":
 		_set_lamp(lamp_diagnostics, pending_intensity)
 
-	_apply_button_flicker(generator_button, startup_pending_step == "generator")
-	_apply_button_flicker(cooling_button, startup_pending_step == "cooling")
-	_apply_button_flicker(reactor_button, startup_pending_step == "reactor")
-	_apply_button_flicker(diagnostics_button, startup_pending_step == "diagnostics")
+	_apply_button_flicker(generator_button, active_startup_step == "generator")
+	_apply_button_flicker(cooling_button, active_startup_step == "cooling")
+	_apply_button_flicker(reactor_button, active_startup_step == "reactor")
+	_apply_button_flicker(diagnostics_button, active_startup_step == "diagnostics")
 
 
 func _apply_button_flicker(button: TextureButton, is_pending: bool) -> void:
@@ -432,15 +476,6 @@ func _apply_button_flicker(button: TextureButton, is_pending: bool) -> void:
 
 
 func _animate_controls(active_thrust_key: Key, active_depth_key: Key, sonar_online: bool, sonar_scan_degrees: float, command_busy: bool) -> void:
-	for keycode in thrust_buttons.keys():
-		var button: TextureButton = thrust_buttons[keycode] as TextureButton
-		var target_angle: float = 0.0
-		if keycode == active_thrust_key:
-			target_angle = float(thrust_button_angles.get(keycode, 0.0))
-		button.rotation_degrees = lerp(button.rotation_degrees, target_angle, 0.14)
-		var press_scale: float = 1.0 - _get_press_amount(button) * 0.08
-		button.scale = button.scale.lerp(Vector2.ONE * (1.06 if keycode == active_thrust_key else 1.0) * press_scale, 0.18)
-
 	for keycode in depth_buttons.keys():
 		var button: TextureButton = depth_buttons[keycode] as TextureButton
 		var press_scale: float = 1.0 - _get_press_amount(button) * 0.06
@@ -515,3 +550,29 @@ func _play_panel_sound(kind: String) -> void:
 			panel_audio.volume_db = -20.0
 
 	panel_audio.play()
+
+
+func _play_startup_comms(step: String, phase: String) -> float:
+	if player == null or not player.has_method("play_comms_line"):
+		return 0.0
+
+	var comms_data: Dictionary = STARTUP_COMMS.get(step, {})
+	if comms_data.is_empty():
+		return 0.0
+
+	var line := comms_data.get(phase, null) as AudioStream
+	if line == null:
+		return 0.0
+
+	player.call("play_comms_line", line)
+	return line.get_length()
+
+
+func _get_active_startup_step() -> String:
+	if startup_announcing_step != "":
+		return startup_announcing_step
+	return startup_pending_step
+
+
+func _is_startup_busy() -> bool:
+	return _get_active_startup_step() != ""

@@ -156,6 +156,13 @@ func issue_panel_command(keycode: Key) -> bool:
 	return _issue_control_command(keycode)
 
 
+func play_comms_line(sound: AudioStream) -> void:
+	if command_player == null:
+		return
+
+	command_player.play_voice_line(sound)
+
+
 func set_startup_state(new_generator_online: bool, new_cooling_online: bool, new_reactor_online: bool, new_diagnostics_complete: bool) -> void:
 	generator_online = new_generator_online
 	cooling_online = new_cooling_online
@@ -287,7 +294,9 @@ func _update_panel_telemetry(delta: float) -> void:
 
 
 func _issue_control_command(keycode: Key) -> bool:
-	var accepted := command_player.issue_key_command(keycode)
+	var accepted := command_player.issue_key_command(keycode, {
+		"sonar_enabled": sonar_enabled
+	})
 	if accepted:
 		last_command_key = keycode
 	return accepted
