@@ -21,7 +21,7 @@ var timer := 0.0
 @onready var host_body: CollisionObject2D = get_parent() as CollisionObject2D
 
 
-func _process(delta):
+func _process(delta: float) -> void:
 	update_cone_visual()
 
 	timer += delta
@@ -47,8 +47,8 @@ func rotate_scan(delta: float) -> void:
 
 
 func emit_sonar() -> void:
-	if cone_drawer and cone_drawer.has_method("trigger_emit_flash"):
-		cone_drawer.call("trigger_emit_flash", max_range, wave_speed)
+	if cone_drawer:
+		cone_drawer.trigger_emit_flash(max_range, wave_speed)
 
 	var ray_directions := SonarLogic.build_ray_directions(cone_angle, rays, global_rotation)
 	if ray_directions.is_empty():
@@ -77,13 +77,13 @@ func emit_sonar() -> void:
 		if not echo.is_empty():
 			echoes.append(echo)
 
-	if sonar_drawer and sonar_drawer.has_method("start_pulse"):
-		sonar_drawer.call("start_pulse", echoes)
+	if sonar_drawer:
+		sonar_drawer.start_pulse(echoes)
 
 
 func update_cone_visual() -> void:
-	if cone_drawer and cone_drawer.has_method("set_scan_visual"):
-		cone_drawer.call("set_scan_visual", cone_angle, cone_visual_distance)
+	if cone_drawer:
+		cone_drawer.set_scan_visual(cone_angle, cone_visual_distance)
 
 
 func get_scan_angle_degrees() -> float:

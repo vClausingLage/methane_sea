@@ -1,5 +1,21 @@
 extends RigidBody2D
 
+const FORWARD_CAMERA_OFFSET := 200.0
+const CAMERA_OFFSET_SMOOTHNESS := 1.0
+const THRUST_KEY_BY_MULTIPLIER := {
+	1.0 / 3.0: KEY_1,
+	2.0 / 3.0: KEY_2,
+	1.0: KEY_3,
+	1.15: KEY_4,
+	-2.0 / 3.0: KEY_R,
+	0.0: KEY_S
+}
+const DEPTH_KEY_BY_MULTIPLIER := {
+	-0.65: KEY_X,
+	0.65: KEY_Y,
+	0.0: KEY_V
+}
+
 var thrust := 50.0
 var max_speed := 25.0
 var water_drag := 0.90
@@ -10,9 +26,6 @@ var idle_drift_interval_max := 3.20
 var idle_drift_vertical_bias := 0.65
 var idle_drift_torque := 10.0
 var idle_drift_sway_speed := 1.4
-var camera_forward_offset := 200.0
-var camera_offset_smoothness := 1
-
 var current_thrust_multiplier := 0.0
 var current_vertical_multiplier := 0.0
 var command_locked := false
@@ -40,7 +53,7 @@ var camera_base_offset := Vector2.ZERO
 @onready var light_turret: PointLight2D = $light_turret
 
 
-func _ready():
+func _ready() -> void:
 	randomize()
 	if command_player == null:
 		push_warning("Player expects child node 'command_player' with CommandPlayer script attached.")
@@ -74,7 +87,7 @@ func _ready():
 	set_startup_state(false, false, false, false)
 
 
-func _unhandled_input(event):
+func _unhandled_input(event: InputEvent) -> void:
 	if not controls_online or command_locked:
 		return
 
@@ -82,7 +95,7 @@ func _unhandled_input(event):
 		_issue_control_command(event.keycode)
 
 
-func _physics_process(delta):
+func _physics_process(delta: float) -> void:
 	_update_panel_telemetry(delta)
 
 	if not controls_online:
@@ -109,11 +122,10 @@ func _handle_scan_input(delta: float) -> void:
 	if not sonar_enabled:
 		return
 
-	if sonar.has_method("rotate_scan"):
-		sonar.call("rotate_scan", delta)
+	sonar.rotate_scan(delta)
 
-	if not command_locked and Input.is_key_pressed(KEY_SPACE) and sonar.has_method("scan"):
-		sonar.call("scan")
+	if not command_locked and Input.is_key_pressed(KEY_SPACE):
+		sonar.scan()
 
 
 func _update_camera_offset(delta: float) -> void:
@@ -122,9 +134,9 @@ func _update_camera_offset(delta: float) -> void:
 
 	var target_x := camera_base_offset.x
 	if current_thrust_multiplier > 0.0:
-		target_x += camera_forward_offset
+		target_x += FORWARD_CAMERA_OFFSET
 
-	camera.offset.x = lerpf(camera.offset.x, target_x, clamp(camera_offset_smoothness * delta, 0.0, 1.0))
+	camera.offset.x = lerpf(camera.offset.x, target_x, clamp(CAMERA_OFFSET_SMOOTHNESS * delta, 0.0, 1.0))
 	camera.offset.y = camera_base_offset.y
 
 
@@ -190,14 +202,14 @@ func _refresh_sonar_state() -> void:
 
 
 func _cache_light_energies() -> void:
-	for light in _get_power_lights():
+	for light in _power_lights():
 		if light == null:
 			continue
 		light_energy_by_name[light.name] = light.energy
 
 
 func _apply_power_visuals() -> void:
-	for light in _get_power_lights():
+	for light in _power_lights():
 		if light == null:
 			continue
 		light.energy = 0.0
@@ -216,13 +228,13 @@ func _apply_power_visuals() -> void:
 	if not reactor_online:
 		return
 
-	for light in _get_power_lights():
+	for light in _power_lights():
 		if light == null:
 			continue
 		light.energy = float(light_energy_by_name.get(light.name, light.energy))
 
 
-func _get_power_lights() -> Array[PointLight2D]:
+func _power_lights() -> Array[PointLight2D]:
 	return [light_front, light_boat, light_position, light_keel, light_turret]
 
 
@@ -230,29 +242,7 @@ func get_panel_state() -> Dictionary:
 	var thrust_level: float = clamp(abs(current_thrust_multiplier) / 1.15, 0.0, 1.0)
 	var vertical_level: float = clamp(abs(current_vertical_multiplier) / 0.65, 0.0, 1.0)
 	var speed_ratio: float = clamp(linear_velocity.length() / max_speed, 0.0, 1.0)
-	var current_draw: float = 0.03
-	var sonar_scan_degrees := 0.0
-
-	if sonar != null:
-		if sonar.has_method("get_scan_angle_degrees"):
-			sonar_scan_degrees = float(sonar.call("get_scan_angle_degrees"))
-		else:
-			sonar_scan_degrees = sonar.rotation_degrees
-
-	if generator_online:
-		current_draw += 0.12
-	if cooling_online:
-		current_draw += 0.1
-	if reactor_online:
-		current_draw += 0.18
-	if controls_online and sonar_enabled:
-		current_draw += 0.1
-	if command_locked:
-		current_draw += 0.08
-
-	current_draw += thrust_level * 0.28
-	current_draw += vertical_level * 0.11
-	current_draw += speed_ratio * 0.1
+	var sonar_scan_degrees: float = 0.0 if sonar == null else sonar.get_scan_angle_degrees()
 
 	return {
 		"generator_online": generator_online,
@@ -264,7 +254,7 @@ func get_panel_state() -> Dictionary:
 		"sonar_scan_degrees": sonar_scan_degrees,
 		"command_locked": command_locked,
 		"battery_charge": battery_charge,
-		"current_draw": clamp(current_draw, 0.0, 1.0),
+		"current_draw": _calculate_current_draw(thrust_level, vertical_level, speed_ratio),
 		"thrust_level": thrust_level,
 		"vertical_level": vertical_level,
 		"speed_ratio": speed_ratio,
@@ -293,6 +283,27 @@ func _update_panel_telemetry(delta: float) -> void:
 	battery_charge = clamp(battery_charge + charge_delta * delta, 0.0, 1.0)
 
 
+func _calculate_current_draw(thrust_level: float, vertical_level: float, speed_ratio: float) -> float:
+	var current_draw: float = 0.03
+
+	if generator_online:
+		current_draw += 0.12
+	if cooling_online:
+		current_draw += 0.1
+	if reactor_online:
+		current_draw += 0.18
+	if controls_online and sonar_enabled:
+		current_draw += 0.1
+	if command_locked:
+		current_draw += 0.08
+
+	current_draw += thrust_level * 0.28
+	current_draw += vertical_level * 0.11
+	current_draw += speed_ratio * 0.1
+
+	return clamp(current_draw, 0.0, 1.0)
+
+
 func _issue_control_command(keycode: Key) -> bool:
 	var accepted := command_player.issue_key_command(keycode, {
 		"sonar_enabled": sonar_enabled
@@ -303,26 +314,15 @@ func _issue_control_command(keycode: Key) -> bool:
 
 
 func _get_active_thrust_key() -> Key:
-	if is_equal_approx(current_thrust_multiplier, 1.0 / 3.0):
-		return KEY_1
-	if is_equal_approx(current_thrust_multiplier, 2.0 / 3.0):
-		return KEY_2
-	if is_equal_approx(current_thrust_multiplier, 1.0):
-		return KEY_3
-	if is_equal_approx(current_thrust_multiplier, 1.15):
-		return KEY_4
-	if is_equal_approx(current_thrust_multiplier, -2.0 / 3.0):
-		return KEY_R
-	if is_equal_approx(current_thrust_multiplier, 0.0):
-		return KEY_S
-	return KEY_NONE
+	return _resolve_key_for_multiplier(current_thrust_multiplier, THRUST_KEY_BY_MULTIPLIER)
 
 
 func _get_active_depth_key() -> Key:
-	if is_equal_approx(current_vertical_multiplier, -0.65):
-		return KEY_X
-	if is_equal_approx(current_vertical_multiplier, 0.65):
-		return KEY_Y
-	if is_equal_approx(current_vertical_multiplier, 0.0):
-		return KEY_V
+	return _resolve_key_for_multiplier(current_vertical_multiplier, DEPTH_KEY_BY_MULTIPLIER)
+
+
+func _resolve_key_for_multiplier(value: float, key_map: Dictionary) -> Key:
+	for mapped_value in key_map.keys():
+		if is_equal_approx(value, float(mapped_value)):
+			return key_map[mapped_value]
 	return KEY_NONE

@@ -9,8 +9,6 @@ colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 1)
 
 [sub_resource type="GradientTexture2D" id="GradientTexture2D_wrm20"]
 gradient = SubResource("Gradient_p4n54")
-width = 110
-height = 110
 fill = 1
 fill_from = Vector2(0.5, 0.5)
 fill_to = Vector2(1, 1)
@@ -32,5 +30,4 @@ flip_h = true
 [node name="PointLight2D" type="PointLight2D" parent="." unique_id=1666798227]
 position = Vector2(9, -62)
 color = Color(0.78810114, 0.78371114, 0, 1)
-energy = 0.46
 texture = SubResource("GradientTexture2D_wrm20")

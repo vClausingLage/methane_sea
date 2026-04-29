@@ -90,6 +90,7 @@ func generate() -> void:
 
 	polygon.position = path.position
 	polygon.polygon = fill_polygon
+	polygon.uv = fill_polygon
 	polygon.texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
 
 	if collision != null:

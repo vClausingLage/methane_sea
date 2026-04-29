@@ -30,6 +30,31 @@ const STARTUP_COMMS := {
 		"complete": preload("res://Assets/Audio/Sub/Comms/Startup/J_diagnosis_complete_green.mp3")
 	}
 }
+const STARTUP_ORDER := [&"generator", &"cooling", &"reactor", &"diagnostics"]
+const STARTUP_QUEUED_MESSAGES := {
+	&"generator": "Closing generator relay...",
+	&"cooling": "Spinning coolant pumps...",
+	&"reactor": "Reactor startup sequence running...",
+	&"diagnostics": "Running startup diagnostics..."
+}
+const STARTUP_READY_STATUS := {
+	&"generator": "BUS OFFLINE\nClose generator relay to wake the boat.",
+	&"cooling": "GENERATOR ONLINE\nStart reactor cooling.",
+	&"reactor": "COOLANT STABLE\nStart reactor.",
+	&"diagnostics": "REACTOR ONLINE\nRun diagnostics."
+}
+const STARTUP_COMPLETION_STATUS := {
+	&"generator": "Generator bus online. Bring coolant pumps up.",
+	&"cooling": "Coolant loop stable. Reactor can be started.",
+	&"reactor": "Reactor online. Run system diagnostics.",
+	&"diagnostics": "Diagnostics passed. Helm controls unlocked."
+}
+const STARTUP_SOUND_BY_STEP := {
+	&"generator": "clunk",
+	&"cooling": "clunk",
+	&"reactor": "heavy",
+	&"diagnostics": "ready"
+}
 
 @export_node_path("Node") var player_path: NodePath = ^"../Player"
 
@@ -135,10 +160,10 @@ func _ready() -> void:
 		button.pivot_offset = _get_button_pivot(button)
 		press_feedback[button] = 0.0
 
-	generator_button.pressed.connect(_on_generator_pressed)
-	cooling_button.pressed.connect(_on_cooling_pressed)
-	reactor_button.pressed.connect(_on_reactor_pressed)
-	diagnostics_button.pressed.connect(_on_diagnostics_pressed)
+	generator_button.pressed.connect(_queue_startup_step_request.bind(&"generator"))
+	cooling_button.pressed.connect(_queue_startup_step_request.bind(&"cooling"))
+	reactor_button.pressed.connect(_queue_startup_step_request.bind(&"reactor"))
+	diagnostics_button.pressed.connect(_queue_startup_step_request.bind(&"diagnostics"))
 	generator_button.pressed.connect(_mark_button_press.bind(generator_button, "heavy"))
 	cooling_button.pressed.connect(_mark_button_press.bind(cooling_button, "clunk"))
 	reactor_button.pressed.connect(_mark_button_press.bind(reactor_button, "heavy"))
@@ -178,61 +203,28 @@ func _process(delta: float) -> void:
 		_animate_controls(KEY_NONE, KEY_NONE, false, 0.0, false)
 		return
 
-	var state: Dictionary = player.call("get_panel_state") as Dictionary
+	var state: Dictionary = player.get_panel_state()
 	_apply_player_state(state)
 
 
-func _on_generator_pressed() -> void:
+func _queue_startup_step_request(step: StringName) -> void:
 	if _is_startup_busy():
 		_set_status("Startup bus busy. Await current relay action.")
 		return
-	if generator_online:
-		_set_status("Generator bus is already online.")
-		return
-	_queue_startup_step("generator", "Closing generator relay...")
 
+	if _is_startup_step_complete(step):
+		_set_status(_get_startup_already_online_message(step))
+		return
 
-func _on_cooling_pressed() -> void:
-	if _is_startup_busy():
-		_set_status("Startup bus busy. Await current relay action.")
+	if not _can_start_startup_step(step):
+		_set_status(_get_startup_blocked_message(step))
 		return
-	if not generator_online:
-		_set_status("Generator must be online before cooling.")
-		return
-	if cooling_online:
-		_set_status("Cooling loop is already stable.")
-		return
-	_queue_startup_step("cooling", "Spinning coolant pumps...")
 
-
-func _on_reactor_pressed() -> void:
-	if _is_startup_busy():
-		_set_status("Startup bus busy. Await current relay action.")
-		return
-	if not cooling_online:
-		_set_status("Cooling must be online before reactor startup.")
-		return
-	if reactor_online:
-		_set_status("Reactor is already online.")
-		return
-	_queue_startup_step("reactor", "Reactor startup sequence running...")
-
-
-func _on_diagnostics_pressed() -> void:
-	if _is_startup_busy():
-		_set_status("Startup bus busy. Await current relay action.")
-		return
-	if not reactor_online:
-		_set_status("Reactor must be online before diagnostics.")
-		return
-	if diagnostics_complete:
-		_set_status("Diagnostics already passed.")
-		return
-	_queue_startup_step("diagnostics", "Running startup diagnostics...")
+	_queue_startup_step(String(step), String(STARTUP_QUEUED_MESSAGES.get(step, "Starting system...")))
 
 
 func _issue_command(keycode: Key, message: String) -> void:
-	if player == null or not player.has_method("issue_panel_command"):
+	if player == null:
 		_set_status("Panel link to player is unavailable.")
 		return
 
@@ -240,7 +232,7 @@ func _issue_command(keycode: Key, message: String) -> void:
 		_set_status("Helm controls are offline. Complete startup first.")
 		return
 
-	var accepted: bool = bool(player.call("issue_panel_command", keycode))
+	var accepted: bool = player.issue_panel_command(keycode)
 	if accepted:
 		_set_status(message)
 	else:
@@ -266,21 +258,16 @@ func _refresh_ui() -> void:
 	header_display.modulate = CHROME_ON if generator_online else CHROME_DIM
 	monitor_rect.modulate = CHROME_ON if reactor_online else CHROME_DIM
 
-	if not generator_online:
-		status_label.text = "BUS OFFLINE\nClose generator relay to wake the boat."
-	elif not cooling_online:
-		status_label.text = "GENERATOR ONLINE\nStart reactor cooling."
-	elif not reactor_online:
-		status_label.text = "COOLANT STABLE\nStart reactor."
-	elif not diagnostics_complete:
-		status_label.text = "REACTOR ONLINE\nRun diagnostics."
+	var pending_step := _get_first_pending_startup_step()
+	if pending_step != StringName():
+		status_label.text = String(STARTUP_READY_STATUS[pending_step])
 
 
 func _apply_startup_to_player() -> void:
-	if player == null or not player.has_method("set_startup_state"):
+	if player == null:
 		return
 
-	player.call("set_startup_state", generator_online, cooling_online, reactor_online, diagnostics_complete)
+	player.set_startup_state(generator_online, cooling_online, reactor_online, diagnostics_complete)
 
 
 func _apply_player_state(state: Dictionary) -> void:
@@ -330,14 +317,9 @@ func _apply_player_state(state: Dictionary) -> void:
 		return
 
 	if not controls_ready:
-		if not generator_online:
-			status_label.text = "BUS OFFLINE\nClose generator relay to wake the boat."
-		elif not cooling_online:
-			status_label.text = "GENERATOR ONLINE\nStart reactor cooling."
-		elif not reactor_online:
-			status_label.text = "COOLANT STABLE\nStart reactor."
-		else:
-			status_label.text = "REACTOR ONLINE\nRun diagnostics."
+		var pending_step := _get_first_pending_startup_step()
+		if pending_step != StringName():
+			status_label.text = String(STARTUP_READY_STATUS[pending_step])
 		return
 
 	if command_busy:
@@ -419,27 +401,7 @@ func _process_startup_transition(delta: float) -> void:
 	if startup_pending_remaining > 0.0:
 		return
 
-	match startup_pending_step:
-		"generator":
-			generator_online = true
-			_play_panel_sound("clunk")
-			_play_startup_comms(startup_pending_step, "complete")
-			_set_status("Generator bus online. Bring coolant pumps up.")
-		"cooling":
-			cooling_online = true
-			_play_panel_sound("clunk")
-			_play_startup_comms(startup_pending_step, "complete")
-			_set_status("Coolant loop stable. Reactor can be started.")
-		"reactor":
-			reactor_online = true
-			_play_panel_sound("heavy")
-			_play_startup_comms(startup_pending_step, "complete")
-			_set_status("Reactor online. Run system diagnostics.")
-		"diagnostics":
-			diagnostics_complete = true
-			_play_panel_sound("ready")
-			_play_startup_comms(startup_pending_step, "complete")
-			_set_status("Diagnostics passed. Helm controls unlocked.")
+	_complete_startup_step(StringName(startup_pending_step))
 
 	startup_pending_step = ""
 	startup_pending_duration = 0.0
@@ -553,7 +515,7 @@ func _play_panel_sound(kind: String) -> void:
 
 
 func _play_startup_comms(step: String, phase: String) -> float:
-	if player == null or not player.has_method("play_comms_line"):
+	if player == null:
 		return 0.0
 
 	var comms_data: Dictionary = STARTUP_COMMS.get(step, {})
@@ -564,7 +526,7 @@ func _play_startup_comms(step: String, phase: String) -> float:
 	if line == null:
 		return 0.0
 
-	player.call("play_comms_line", line)
+	player.play_comms_line(line)
 	return line.get_length()
 
 
@@ -576,3 +538,96 @@ func _get_active_startup_step() -> String:
 
 func _is_startup_busy() -> bool:
 	return _get_active_startup_step() != ""
+
+
+func _get_first_pending_startup_step() -> StringName:
+	for step in STARTUP_ORDER:
+		match step:
+			&"generator":
+				if not generator_online:
+					return step
+			&"cooling":
+				if not cooling_online:
+					return step
+			&"reactor":
+				if not reactor_online:
+					return step
+			&"diagnostics":
+				if not diagnostics_complete:
+					return step
+
+	return StringName()
+
+
+func _complete_startup_step(step: StringName) -> void:
+	match step:
+		&"generator":
+			generator_online = true
+		&"cooling":
+			cooling_online = true
+		&"reactor":
+			reactor_online = true
+		&"diagnostics":
+			diagnostics_complete = true
+		_:
+			return
+
+	_play_panel_sound(String(STARTUP_SOUND_BY_STEP.get(step, "tap")))
+	_play_startup_comms(String(step), "complete")
+	_set_status(String(STARTUP_COMPLETION_STATUS.get(step, "Startup step complete.")))
+
+
+func _is_startup_step_complete(step: StringName) -> bool:
+	match step:
+		&"generator":
+			return generator_online
+		&"cooling":
+			return cooling_online
+		&"reactor":
+			return reactor_online
+		&"diagnostics":
+			return diagnostics_complete
+		_:
+			return false
+
+
+func _can_start_startup_step(step: StringName) -> bool:
+	match step:
+		&"generator":
+			return true
+		&"cooling":
+			return generator_online
+		&"reactor":
+			return cooling_online
+		&"diagnostics":
+			return reactor_online
+		_:
+			return false
+
+
+func _get_startup_already_online_message(step: StringName) -> String:
+	match step:
+		&"generator":
+			return "Generator bus is already online."
+		&"cooling":
+			return "Cooling loop is already stable."
+		&"reactor":
+			return "Reactor is already online."
+		&"diagnostics":
+			return "Diagnostics already passed."
+		_:
+			return "System already online."
+
+
+func _get_startup_blocked_message(step: StringName) -> String:
+	match step:
+		&"generator":
+			return ""
+		&"cooling":
+			return "Generator must be online before cooling."
+		&"reactor":
+			return "Cooling must be online before reactor startup."
+		&"diagnostics":
+			return "Reactor must be online before diagnostics."
+		_:
+			return "Startup step unavailable."

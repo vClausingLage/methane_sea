@@ -11,7 +11,7 @@ var sound_emitted_2: AudioStream = preload("res://Assets/Audio/Monster/fish_medi
 var sound_emitted_3: AudioStream = preload("res://Assets/Audio/Monster/fish_medium3.wav")
 var sound_emitted_4: AudioStream = preload("res://Assets/Audio/Monster/fish_medium4.wav")
 @export_range(0.0, 1.0, 0.01) var passive_loudness := 0.8
-@export var facing: Facing = Facing.LEFT
+@export var facing: Facing = Facing.RIGHT
 @export var swim_impulse := 8.0
 
 const SOUND_INTERVAL_MIN := 6.0
@@ -23,9 +23,11 @@ var _random_sound_timer: Timer
 var _ambient_sounds: Array[AudioStream] = []
 var _collider_base_position := Vector2.ZERO
 var _collider_base_scale := Vector2.ONE
+var _sprite_base_scale := Vector2.ONE
+var _sprite_base_flip_h := false
 
-@onready var body: Node2D = $body
 @onready var collider: CollisionPolygon2D = $collider
+@onready var sprite: Sprite2D = $sprite
 
 func _ready() -> void:
 	add_to_group(&"passive_sound_emitters")
@@ -45,20 +47,23 @@ func _ready() -> void:
 	if collider != null:
 		_collider_base_position = collider.position
 		_collider_base_scale = collider.scale
+	if sprite != null:
+		_sprite_base_scale = sprite.scale
+		_sprite_base_flip_h = sprite.flip_h
 	_apply_facing()
 	apply_central_impulse(Vector2(float(facing) * swim_impulse, 0.0))
 
 
 func _apply_facing() -> void:
-	if body == null:
-		return
-
-	body.scale.x = abs(body.scale.x) * float(facing)
+	if sprite != null:
+		sprite.scale = _sprite_base_scale
+		sprite.flip_h = _sprite_base_flip_h if facing == Facing.RIGHT else not _sprite_base_flip_h
 	if collider != null:
-		collider.position.x = abs(_collider_base_position.x) * float(facing)
-		collider.position.y = _collider_base_position.y
-		collider.scale.x = abs(_collider_base_scale.x) * float(facing)
-		collider.scale.y = _collider_base_scale.y
+		collider.position = _collider_base_position
+		collider.scale = _collider_base_scale
+		if facing == Facing.LEFT:
+			collider.position.x = -_collider_base_position.x
+			collider.scale.x = -_collider_base_scale.x
 
 
 func _on_random_sound_timer_timeout() -> void:

@@ -1,0 +1,29 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://Scripts/Cave/cave_ceiling.gd" id="1_ceiling"]
+[ext_resource type="Texture2D" uid="uid://be31ycv66uhqj" path="res://Assets/Terrrain/rock_tile.png" id="2_rock"]
+
+[sub_resource type="Curve2D" id="Curve2D_ceiling"]
+_data = {
+"points": PackedVector2Array(0, 0, 0, 0, -900, -260, 0, 0, 0, 0, -450, -320, 0, 0, 0, 0, 0, -240, 0, 0, 0, 0, 450, -300, 0, 0, 0, 0, 900, -220)
+}
+point_count = 5
+
+[node name="Cave_Ceiling" type="Node2D"]
+script = ExtResource("1_ceiling")
+terrain_seed = 24177739
+
+[node name="Path2D" type="Path2D" parent="."]
+curve = SubResource("Curve2D_ceiling")
+
+[node name="EdgeLine2D" type="Line2D" parent="."]
+
+[node name="Polygon2D" type="Polygon2D" parent="."]
+z_index = -1
+texture_repeat = 2
+texture = ExtResource("2_rock")
+
+[node name="StaticBody2D" type="StaticBody2D" parent="."]
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="StaticBody2D"]
+disabled = true

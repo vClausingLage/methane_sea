@@ -1,5 +1,6 @@
 [gd_scene format=3 uid="uid://bhtuukgl4jyg"]
 
+[ext_resource type="Script" uid="uid://cd651cfh8wcvl" path="res://Scripts/World/stooberfish.gd" id="1_e27nm"]
 [ext_resource type="Texture2D" uid="uid://cqo5ihmqlkvtx" path="res://Assets/Fauna/fish_1.png" id="1_lqhig"]
 
 [sub_resource type="Gradient" id="Gradient_e27nm"]
@@ -12,6 +13,7 @@ fill = 1
 fill_from = Vector2(0.5, 0.5)
 
 [node name="Stooberfish" type="RigidBody2D" unique_id=1651259702]
+script = ExtResource("1_e27nm")
 
 [node name="sprite" type="Sprite2D" parent="." unique_id=1937349507]
 texture = ExtResource("1_lqhig")
