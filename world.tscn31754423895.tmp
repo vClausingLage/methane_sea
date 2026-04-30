@@ -30,7 +30,6 @@
 [ext_resource type="Shader" uid="uid://lainnytghn6v" path="res://Shader/water_background.gdshader" id="30_8qqh8"]
 [ext_resource type="Texture2D" uid="uid://cdrd2sd1xi11q" path="res://Assets/Level_1/yard1.png" id="30_qktwf"]
 [ext_resource type="PackedScene" uid="uid://c66ek3ftkl2h2" path="res://Scenes/submarine_panel.tscn" id="31_6i0e2"]
-[ext_resource type="Script" uid="uid://ckgm2qlgtiekq" path="res://Scripts/World/fish_manager.gd" id="32_fish_manager"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_8qqh8"]
 shader = ExtResource("30_8qqh8")
@@ -268,19 +267,16 @@ rotation = -0.20943952
 texture = ExtResource("14_70uel")
 
 [node name="CanvasModulate" type="CanvasModulate" parent="." unique_id=1578699134]
-visible = false
 color = Color(0.0142752165, 0.014275218, 0.014275218, 1)
 
 [node name="sea_ambiance_player" type="AudioStreamPlayer2D" parent="." unique_id=855004675]
 stream = SubResource("AudioStreamPlaylist_wjb0r")
 
-[node name="FishManager" type="Node2D" parent="." unique_id=375015075]
-script = ExtResource("32_fish_manager")
-fish_scenes = Array[PackedScene]([ExtResource("14_2u3nc"), ExtResource("28_k83mh")])
-spawn_points = PackedVector2Array(-5200, -680, -4550, -1700, -3800, -300, -2700, -920, -1650, 120, -540, 930, 320, -260)
-
 [node name="killerfish" parent="." unique_id=467909731 instance=ExtResource("14_2u3nc")]
 position = Vector2(-411, 282)
+passive_loudness = null
+facing = null
+swim_impulse = null
 
 [node name="Stooberfish" parent="." unique_id=1651259702 instance=ExtResource("28_k83mh")]
 position = Vector2(-417, 1374)

@@ -4,8 +4,11 @@ class_name CommandPlayer
 signal command_pending_changed(is_pending: bool)
 signal command_resolved(thrust_multiplier: float, vertical_multiplier: float, motor_stream: int)
 signal sonar_toggle_requested
+signal voice_line_started(speaker: StringName)
+signal voice_line_finished(speaker: StringName)
 
 var command_locked := false
+var active_voice_speaker := StringName()
 
 const ORDER_RESPONSE_SOUNDS: Array[AudioStream] = [
 	preload("res://Assets/Audio/Sub/Comms/Orders/J_aye.mp3"),
@@ -142,25 +145,36 @@ func _run_command_pipeline(command_sound: AudioStream, response_sound: AudioStre
 	_release_lock()
 
 
-func _play_command_sound(sound: AudioStream) -> void:
+func _play_command_sound(sound: AudioStream) -> StringName:
 	if sound == null:
-		return
+		return StringName()
 
+	_finish_active_voice_line()
 	stop()
 	stream = sound
+	var speaker := _get_speaker_for_stream(sound)
+	active_voice_speaker = speaker
+	if speaker != StringName():
+		voice_line_started.emit(speaker)
 	play()
+	return speaker
 
 
 func _play_voice_line_and_wait(sound: AudioStream) -> void:
 	if sound == null:
 		return
 
-	_play_command_sound(sound)
+	var speaker := _play_command_sound(sound)
 	await finished
+	if active_voice_speaker == speaker:
+		_finish_active_voice_line()
 
 
 func play_voice_line(sound: AudioStream) -> void:
-	_play_command_sound(sound)
+	var speaker := _play_command_sound(sound)
+	await finished
+	if active_voice_speaker == speaker:
+		_finish_active_voice_line()
 
 
 func _get_random_order_response() -> AudioStream:
@@ -177,6 +191,27 @@ func _pick_random_stream(streams: Array[AudioStream]) -> AudioStream:
 	if streams.is_empty():
 		return null
 	return streams[randi() % streams.size()]
+
+
+func _finish_active_voice_line() -> void:
+	if active_voice_speaker == StringName():
+		return
+
+	var finished_speaker := active_voice_speaker
+	active_voice_speaker = StringName()
+	voice_line_finished.emit(finished_speaker)
+
+
+func _get_speaker_for_stream(sound: AudioStream) -> StringName:
+	if sound == null:
+		return StringName()
+
+	var file_name := sound.resource_path.get_file()
+	if file_name.begins_with("T_"):
+		return &"T"
+	if file_name.begins_with("J_"):
+		return &"J"
+	return StringName()
 
 
 func _release_lock() -> void:

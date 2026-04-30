@@ -1,5 +1,9 @@
 extends Control
 
+const SIDE_GUTTER_WIDTH := 24.0
+const BAR_WIDTH := 8.0
+const BAR_MARGIN := 4.0
+
 var battery_level := 0.0
 var current_level := 0.0
 var speed_level := 0.0
@@ -36,7 +40,7 @@ func _draw() -> void:
 
 	for index in range(48):
 		var t: float = float(index) / 47.0
-		var x: float = size.x * t
+		var x: float = lerp(SIDE_GUTTER_WIDTH, size.x - SIDE_GUTTER_WIDTH, t)
 		var wave_a: float = sin(t * TAU * (2.2 + speed_wobble) + phase * 3.4) * amplitude
 		var wave_b: float = sin(t * TAU * (5.5 + current_level * 2.0) - phase * 5.1) * amplitude * 0.42
 		var y: float = clamp(baseline + wave_a + wave_b, 3.0, size.y - 3.0)
@@ -44,12 +48,13 @@ func _draw() -> void:
 
 	draw_polyline(points, Color(0.36, 0.95, 0.79, 0.95), 2.0, true)
 
-	var battery_bar := Rect2(Vector2(6, 6), Vector2(8, (size.y - 12) * battery_level))
+	var battery_bar := Rect2(Vector2(BAR_MARGIN, 6), Vector2(BAR_WIDTH, (size.y - 12) * battery_level))
 	battery_bar.position.y = size.y - 6 - battery_bar.size.y
-	draw_rect(Rect2(6, 6, 8, size.y - 12), Color(0.08, 0.16, 0.15, 0.8), true)
+	draw_rect(Rect2(BAR_MARGIN, 6, BAR_WIDTH, size.y - 12), Color(0.08, 0.16, 0.15, 0.8), true)
 	draw_rect(battery_bar, Color(0.31, 0.88, 0.73, 0.9), true)
 
-	var current_bar := Rect2(Vector2(size.x - 14, 6), Vector2(8, (size.y - 12) * current_level))
+	var current_x := size.x - BAR_MARGIN - BAR_WIDTH
+	var current_bar := Rect2(Vector2(current_x, 6), Vector2(BAR_WIDTH, (size.y - 12) * current_level))
 	current_bar.position.y = size.y - 6 - current_bar.size.y
-	draw_rect(Rect2(size.x - 14, 6, 8, size.y - 12), Color(0.12, 0.11, 0.07, 0.8), true)
+	draw_rect(Rect2(current_x, 6, BAR_WIDTH, size.y - 12), Color(0.12, 0.11, 0.07, 0.8), true)
 	draw_rect(current_bar, Color(0.88, 0.71, 0.34, 0.92), true)

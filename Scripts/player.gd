@@ -1,7 +1,11 @@
 extends RigidBody2D
 
+signal voice_line_started(speaker: StringName)
+signal voice_line_finished(speaker: StringName)
+
 const FORWARD_CAMERA_OFFSET := 200.0
 const CAMERA_OFFSET_SMOOTHNESS := 1.0
+const HULL_MARK_LIMIT := 18
 const THRUST_KEY_BY_MULTIPLIER := {
 	1.0 / 3.0: KEY_1,
 	2.0 / 3.0: KEY_2,
@@ -37,6 +41,7 @@ var reactor_online := false
 var diagnostics_complete := false
 var light_energy_by_name: Dictionary = {}
 var battery_charge := 0.18
+var hull_integrity := 1.0
 var last_command_key: Key = KEY_NONE
 var movement: SubmarineMovement
 var camera_base_offset := Vector2.ZERO
@@ -51,10 +56,12 @@ var camera_base_offset := Vector2.ZERO
 @onready var light_position: PointLight2D = $light_position
 @onready var light_keel: PointLight2D = $light_keel
 @onready var light_turret: PointLight2D = $light_turret
+@onready var sprite: Sprite2D = $sprite
 
 
 func _ready() -> void:
 	randomize()
+	add_to_group(&"submarine")
 	if command_player == null:
 		push_warning("Player expects child node 'command_player' with CommandPlayer script attached.")
 		return
@@ -82,6 +89,8 @@ func _ready() -> void:
 	command_player.command_pending_changed.connect(_on_command_pending_changed)
 	command_player.command_resolved.connect(_on_command_resolved)
 	command_player.sonar_toggle_requested.connect(_on_sonar_toggle_requested)
+	command_player.voice_line_started.connect(_on_voice_line_started)
+	command_player.voice_line_finished.connect(_on_voice_line_finished)
 
 	_cache_light_energies()
 	set_startup_state(false, false, false, false)
@@ -156,6 +165,14 @@ func _on_command_resolved(multiplier: float, vertical_multiplier: float, motor_s
 func _on_sonar_toggle_requested() -> void:
 	sonar_enabled = not sonar_enabled
 	_refresh_sonar_state()
+
+
+func _on_voice_line_started(speaker: StringName) -> void:
+	voice_line_started.emit(speaker)
+
+
+func _on_voice_line_finished(speaker: StringName) -> void:
+	voice_line_finished.emit(speaker)
 
 
 func issue_panel_command(keycode: Key) -> bool:
@@ -238,6 +255,54 @@ func _power_lights() -> Array[PointLight2D]:
 	return [light_front, light_boat, light_position, light_keel, light_turret]
 
 
+func get_light_attraction_strength() -> float:
+	var strongest_light := 0.0
+	for light in _power_lights():
+		if light == null or not light.enabled:
+			continue
+		strongest_light = max(strongest_light, light.energy)
+	return clamp(strongest_light / 1.3, 0.0, 1.0)
+
+
+func get_sound_attraction_strength() -> float:
+	var thrust_noise : float = clamp(abs(current_thrust_multiplier), 0.0, 1.0)
+	var vertical_noise : float = clamp(abs(current_vertical_multiplier) / 0.65, 0.0, 1.0) * 0.55
+	var sonar_noise := 0.25 if controls_online and sonar_enabled else 0.0
+	var command_noise := 0.2 if command_locked else 0.0
+	return clamp(thrust_noise + vertical_noise + sonar_noise + command_noise, 0.0, 1.0)
+
+
+func apply_fish_contact(source_position: Vector2, damage: float, impulse_strength: float, mark_kind := &"scratch") -> void:
+	hull_integrity = clamp(hull_integrity - damage, 0.0, 1.0)
+
+	var push_direction := (global_position - source_position).normalized()
+	if push_direction == Vector2.ZERO:
+		push_direction = Vector2.RIGHT.rotated(rotation)
+	apply_central_impulse(push_direction * impulse_strength)
+	_add_hull_mark(source_position, mark_kind)
+
+
+func _add_hull_mark(source_position: Vector2, mark_kind: StringName) -> void:
+	var mark := Line2D.new()
+	mark.name = "hull_%s" % String(mark_kind)
+	mark.width = 2.0 if mark_kind == &"scratch" else 3.5
+	mark.default_color = Color(0.11, 0.05, 0.035, 0.72)
+	mark.z_index = 3
+
+	var local_hit := sprite.to_local(source_position) if sprite != null else Vector2.ZERO
+	var mark_length := 28.0 if mark_kind == &"scratch" else 15.0
+	var slant := Vector2(mark_length, mark_length * 0.35).rotated(randf_range(-0.6, 0.6))
+	mark.points = PackedVector2Array([local_hit - slant * 0.5, local_hit + slant * 0.5])
+
+	var mark_parent : Sprite2D = sprite if sprite != null else self
+	mark_parent.add_child(mark)
+	while mark_parent.get_child_count() > HULL_MARK_LIMIT + 1:
+		for child in mark_parent.get_children():
+			if child is Line2D and String(child.name).begins_with("hull_"):
+				child.queue_free()
+				break
+
+
 func get_panel_state() -> Dictionary:
 	var thrust_level: float = clamp(abs(current_thrust_multiplier) / 1.15, 0.0, 1.0)
 	var vertical_level: float = clamp(abs(current_vertical_multiplier) / 0.65, 0.0, 1.0)
@@ -253,6 +318,7 @@ func get_panel_state() -> Dictionary:
 		"sonar_online": controls_online and sonar_enabled,
 		"sonar_scan_degrees": sonar_scan_degrees,
 		"command_locked": command_locked,
+		"hull_integrity": hull_integrity,
 		"battery_charge": battery_charge,
 		"current_draw": _calculate_current_draw(thrust_level, vertical_level, speed_ratio),
 		"thrust_level": thrust_level,

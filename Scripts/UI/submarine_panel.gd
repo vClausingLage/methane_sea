@@ -12,6 +12,10 @@ const SOUND_PANEL_TAP := preload("res://Assets/Audio/Sub/Ship/hull_1.wav")
 const SOUND_PANEL_CLUNK := preload("res://Assets/Audio/Sub/Ship/hull_2.wav")
 const SOUND_PANEL_HEAVY := preload("res://Assets/Audio/Sub/Ship/hull_3.wav")
 const SOUND_PANEL_READY := preload("res://Assets/Audio/Sub/Comms/sonar_contact.mp3")
+const PORTRAIT_T := preload("res://Assets/Figures/portrait1.png")
+const PORTRAIT_J := preload("res://Assets/Figures/portrait2.png")
+const PORTRAIT_SIZE := Vector2(250, 250)
+const PORTRAIT_MARGIN := 24.0
 const STARTUP_COMMS := {
 	"generator": {
 		"start": preload("res://Assets/Audio/Sub/Comms/Startup/T_start_generator.mp3"),
@@ -55,8 +59,10 @@ const STARTUP_SOUND_BY_STEP := {
 	&"reactor": "heavy",
 	&"diagnostics": "ready"
 }
+const DEV_START_FULLY_ONLINE_SETTING := "application/run/dev_start_submarine_fully_online"
 
 @export_node_path("Node") var player_path: NodePath = ^"../Player"
+@export var dev_start_fully_online := false
 
 var generator_online := false
 var cooling_online := false
@@ -70,6 +76,8 @@ var startup_pending_duration := 0.0
 var panel_anim_time := 0.0
 var press_feedback: Dictionary = {}
 var panel_audio: AudioStreamPlayer
+var portrait_t: TextureRect
+var portrait_j: TextureRect
 
 @onready var player: Node = get_node_or_null(player_path)
 @onready var header_display: TextureRect = $Root/Dock/Shell/Padding/Content/TopRow/HeaderCluster/HeaderDisplay
@@ -188,9 +196,14 @@ func _ready() -> void:
 	panel_audio.bus = "Master"
 	panel_audio.volume_db = -18.0
 	add_child(panel_audio)
+	_create_voice_portraits()
+	_connect_voice_portrait_signals()
+
+	if _is_dev_startup_bypass_enabled():
+		_complete_all_startup_steps_for_dev()
 
 	_refresh_ui()
-	_apply_startup_to_player()
+	call_deferred("_apply_startup_to_player")
 
 
 func _process(delta: float) -> void:
@@ -268,6 +281,95 @@ func _apply_startup_to_player() -> void:
 		return
 
 	player.set_startup_state(generator_online, cooling_online, reactor_online, diagnostics_complete)
+
+
+func _create_voice_portraits() -> void:
+	portrait_j = _create_voice_portrait(PORTRAIT_J, true)
+	portrait_t = _create_voice_portrait(PORTRAIT_T, false)
+
+
+func _create_voice_portrait(texture: Texture2D, align_left: bool) -> TextureRect:
+	var portrait := TextureRect.new()
+	portrait.texture = texture
+	portrait.custom_minimum_size = PORTRAIT_SIZE
+	portrait.size = PORTRAIT_SIZE
+	portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	portrait.visible = false
+	portrait.z_index = 100
+
+	if align_left:
+		portrait.anchor_left = 0.0
+		portrait.anchor_right = 0.0
+		portrait.offset_left = PORTRAIT_MARGIN
+		portrait.offset_right = PORTRAIT_MARGIN + PORTRAIT_SIZE.x
+	else:
+		portrait.anchor_left = 1.0
+		portrait.anchor_right = 1.0
+		portrait.offset_left = -PORTRAIT_MARGIN - PORTRAIT_SIZE.x
+		portrait.offset_right = -PORTRAIT_MARGIN
+
+	portrait.anchor_top = 0.0
+	portrait.anchor_bottom = 0.0
+	portrait.offset_top = PORTRAIT_MARGIN
+	portrait.offset_bottom = PORTRAIT_MARGIN + PORTRAIT_SIZE.y
+	add_child(portrait)
+	return portrait
+
+
+func _connect_voice_portrait_signals() -> void:
+	if player == null:
+		return
+	if player.has_signal("voice_line_started"):
+		player.voice_line_started.connect(_on_voice_line_started)
+	if player.has_signal("voice_line_finished"):
+		player.voice_line_finished.connect(_on_voice_line_finished)
+
+
+func _on_voice_line_started(speaker: StringName) -> void:
+	match speaker:
+		&"T":
+			_set_portrait_speaking(portrait_t, portrait_j)
+		&"J":
+			_set_portrait_speaking(portrait_j, portrait_t)
+
+
+func _on_voice_line_finished(speaker: StringName) -> void:
+	match speaker:
+		&"T":
+			if portrait_t:
+				portrait_t.visible = false
+		&"J":
+			if portrait_j:
+				portrait_j.visible = false
+
+
+func _set_portrait_speaking(active_portrait: TextureRect, inactive_portrait: TextureRect) -> void:
+	if inactive_portrait:
+		inactive_portrait.visible = false
+	if active_portrait:
+		active_portrait.visible = true
+
+
+func _is_dev_startup_bypass_enabled() -> bool:
+	return OS.is_debug_build() and (
+		dev_start_fully_online
+		or bool(ProjectSettings.get_setting(DEV_START_FULLY_ONLINE_SETTING, false))
+	)
+
+
+func _complete_all_startup_steps_for_dev() -> void:
+	generator_online = true
+	cooling_online = true
+	reactor_online = true
+	diagnostics_complete = true
+	startup_pending_step = ""
+	startup_announcing_step = ""
+	startup_pending_duration = 0.0
+	startup_pending_remaining = 0.0
+	status_label.text = "SYSTEMS NOMINAL\nDev startup bypass active."
+	status_hold_time = 0.0
 
 
 func _apply_player_state(state: Dictionary) -> void:
