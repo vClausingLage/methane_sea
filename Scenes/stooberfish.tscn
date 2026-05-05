@@ -15,14 +15,16 @@ fill_from = Vector2(0.5, 0.5)
 [node name="Stooberfish" type="RigidBody2D" unique_id=1651259702]
 script = ExtResource("1_e27nm")
 
-[node name="sprite" type="Sprite2D" parent="." unique_id=1937349507]
+[node name="visuals" type="Node2D" parent="." unique_id=2055046373]
+
+[node name="sprite" type="Sprite2D" parent="visuals" unique_id=1937349507]
 texture = ExtResource("1_lqhig")
 
-[node name="light" type="PointLight2D" parent="." unique_id=976712873]
-position = Vector2(-277, -75)
+[node name="light" type="PointLight2D" parent="visuals" unique_id=976712873]
+position = Vector2(278, -78)
 color = Color(0.38753423, 0.9905692, 0.9361477, 1)
 energy = 2.73
 texture = SubResource("GradientTexture2D_nou4q")
 
-[node name="collider" type="CollisionPolygon2D" parent="." unique_id=284602189]
-polygon = PackedVector2Array(-51, -207, 194, -252, 236, -211, 286, -112, 413, -169, 417, 63, 292, 3, 56, 95, -200, 238, -406, 118, -406, 42, -283, 63, -296, 10, -387, -11, -366, -101, -295, -150)
+[node name="collider" type="CollisionPolygon2D" parent="visuals" unique_id=284602189]
+polygon = PackedVector2Array(-298, -114, -189, -243, -31, -233, 148, -197, 364, -111, 384, -25, 273, 21, 291, 60, 408, 50, 403, 141, 314, 151, 198, 231, -46, 104, -160, 102, -280, 11, -407, 78, -404, -150)

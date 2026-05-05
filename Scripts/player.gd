@@ -6,6 +6,8 @@ signal voice_line_finished(speaker: StringName)
 const FORWARD_CAMERA_OFFSET := 200.0
 const CAMERA_OFFSET_SMOOTHNESS := 1.0
 const HULL_MARK_LIMIT := 18
+const SOUND_HULL_STRESS := preload("res://Assets/Audio/Sub/Ship/hull_4.wav")
+const DEV_START_FULLY_ONLINE_SETTING := "application/run/dev_start_submarine_fully_online"
 const THRUST_KEY_BY_MULTIPLIER := {
 	1.0 / 3.0: KEY_1,
 	2.0 / 3.0: KEY_2,
@@ -45,6 +47,9 @@ var hull_integrity := 1.0
 var last_command_key: Key = KEY_NONE
 var movement: SubmarineMovement
 var camera_base_offset := Vector2.ZERO
+var hull_stress_player: AudioStreamPlayer2D
+
+@export var start_fully_online := false
 
 @onready var sonar: Node2D = $sonar
 @onready var camera: Camera2D = $camera
@@ -70,6 +75,12 @@ func _ready() -> void:
 		push_warning("Player expects child node 'motor_player' with MotorPlayer script attached.")
 		return
 
+	hull_stress_player = AudioStreamPlayer2D.new()
+	hull_stress_player.name = "hull_stress_player"
+	hull_stress_player.stream = SOUND_HULL_STRESS
+	hull_stress_player.volume_db = -9.0
+	add_child(hull_stress_player)
+
 	movement = SubmarineMovement.new()
 	movement.configure(
 		thrust,
@@ -93,7 +104,10 @@ func _ready() -> void:
 	command_player.voice_line_finished.connect(_on_voice_line_finished)
 
 	_cache_light_energies()
-	set_startup_state(false, false, false, false)
+	if _is_dev_startup_bypass_enabled():
+		set_startup_state(true, true, true, true)
+	else:
+		set_startup_state(false, false, false, false)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -209,6 +223,13 @@ func set_startup_state(new_generator_online: bool, new_cooling_online: bool, new
 	_refresh_sonar_state()
 
 
+func _is_dev_startup_bypass_enabled() -> bool:
+	return OS.is_debug_build() and (
+		start_fully_online
+		or bool(ProjectSettings.get_setting(DEV_START_FULLY_ONLINE_SETTING, false))
+	)
+
+
 func _refresh_sonar_state() -> void:
 	if sonar == null:
 		return
@@ -280,6 +301,7 @@ func apply_fish_contact(source_position: Vector2, damage: float, impulse_strengt
 		push_direction = Vector2.RIGHT.rotated(rotation)
 	apply_central_impulse(push_direction * impulse_strength)
 	_add_hull_mark(source_position, mark_kind)
+	_play_hull_stress_sound()
 
 
 func _add_hull_mark(source_position: Vector2, mark_kind: StringName) -> void:
@@ -290,6 +312,10 @@ func _add_hull_mark(source_position: Vector2, mark_kind: StringName) -> void:
 	mark.z_index = 3
 
 	var local_hit := sprite.to_local(source_position) if sprite != null else Vector2.ZERO
+	if sprite != null and sprite.texture != null:
+		var half_size := sprite.texture.get_size() * 0.42
+		local_hit.x = clamp(local_hit.x, -half_size.x, half_size.x)
+		local_hit.y = clamp(local_hit.y, -half_size.y, half_size.y)
 	var mark_length := 28.0 if mark_kind == &"scratch" else 15.0
 	var slant := Vector2(mark_length, mark_length * 0.35).rotated(randf_range(-0.6, 0.6))
 	mark.points = PackedVector2Array([local_hit - slant * 0.5, local_hit + slant * 0.5])
@@ -301,6 +327,13 @@ func _add_hull_mark(source_position: Vector2, mark_kind: StringName) -> void:
 			if child is Line2D and String(child.name).begins_with("hull_"):
 				child.queue_free()
 				break
+
+
+func _play_hull_stress_sound() -> void:
+	if hull_stress_player == null:
+		return
+	hull_stress_player.pitch_scale = randf_range(0.86, 1.08)
+	hull_stress_player.play()
 
 
 func get_panel_state() -> Dictionary:

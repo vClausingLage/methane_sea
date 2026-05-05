@@ -12,9 +12,9 @@ config_version=5
 
 config/name="methane_sea"
 run/main_scene="uid://da1my6s5g62cr"
-run/dev_start_submarine_fully_online=false
 config/features=PackedStringArray("4.6", "Forward Plus")
-config/icon="res://icon.svg"
+config/icon="uid://b4cmsgotjf2sa"
+run/dev_start_submarine_fully_online=false
 
 [display]
 
